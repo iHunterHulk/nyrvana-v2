@@ -1,4 +1,5 @@
 import { Elysia } from 'elysia';
+import './providers/adapters';
 import { health } from './routes/v2/health';
 import { providers } from './routes/v2/providers';
 
