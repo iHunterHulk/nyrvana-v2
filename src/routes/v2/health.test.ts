@@ -1,3 +1,4 @@
+process.env.NYRVANA_JWT_SECRET = process.env.NYRVANA_JWT_SECRET || 'test-jwt-secret';
 import { beforeAll, afterAll, describe, it, expect, beforeEach, vi } from 'vitest';
 import { Elysia } from 'elysia';
 import { health } from './health';
@@ -5,6 +6,12 @@ import { providerRegistry } from '../../providers/registry-singleton';
 import { AdGuardProvider } from '../../providers/adapters/adguard.provider';
 import { NtfyProvider } from '../../providers/adapters/ntfy.provider';
 import { MemosProvider } from '../../providers/adapters/memos.provider';
+import { signAccessToken } from '../../lib/jwt';
+
+// Mock the health methods to return specific values for testing
+const mockAdGuardHealth = vi.fn();
+const mockNtfyHealth = vi.fn();
+const mockMemosHealth = vi.fn();
 
 // Create a test app
 const testApp = new Elysia()
@@ -12,11 +19,26 @@ const testApp = new Elysia()
 
 describe('Health API', () => {
   beforeEach(() => {
+    // Reset mocks
+    mockAdGuardHealth.mockReset();
+    mockNtfyHealth.mockReset();
+    mockMemosHealth.mockReset();
+    
+    // Create mock providers with mocked health methods
+    const adGuardProvider = new AdGuardProvider();
+    adGuardProvider.health = mockAdGuardHealth;
+    
+    const ntfyProvider = new NtfyProvider();
+    ntfyProvider.health = mockNtfyHealth;
+    
+    const memosProvider = new MemosProvider();
+    memosProvider.health = mockMemosHealth;
+    
     // Register mock providers for testing
     providerRegistry.clear();
-    providerRegistry.register(new AdGuardProvider());
-    providerRegistry.register(new NtfyProvider());
-    providerRegistry.register(new MemosProvider());
+    providerRegistry.register(adGuardProvider);
+    providerRegistry.register(ntfyProvider);
+    providerRegistry.register(memosProvider);
   });
 
   afterAll(() => {
@@ -24,9 +46,21 @@ describe('Health API', () => {
     providerRegistry.clear();
   });
 
-  it('should return health status with all adapters', async () => {
+  it('should return health status with all adapters when healthy', async () => {
+    // Mock health responses
+    mockAdGuardHealth.mockResolvedValue({ status: 'healthy' });
+    mockNtfyHealth.mockResolvedValue({ status: 'healthy' });
+    mockMemosHealth.mockResolvedValue({ status: 'healthy' });
+    
+    // Create a valid JWT token for testing
+    const token = signAccessToken('test-user-id', 'admin');
+    
     const response = await testApp.handle(
-      new Request('http://localhost:3002/api/v2/health')
+      new Request('http://localhost:3002/api/v2/health', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
     );
     
     expect(response.status).toBe(200);
@@ -38,9 +72,49 @@ describe('Health API', () => {
     expect(body.uptime).toBeGreaterThan(0);
     
     expect(body).toHaveProperty('adapters');
-    expect(body.adapters).toHaveProperty('adguard', true);
-    expect(body.adapters).toHaveProperty('ntfy', true);
-    expect(body.adapters).toHaveProperty('memos', true);
+    expect(body.adapters).toHaveProperty('adguard');
+    expect(body.adapters.adguard).toEqual({ status: 'healthy' });
+    expect(body.adapters).toHaveProperty('ntfy');
+    expect(body.adapters.ntfy).toEqual({ status: 'healthy' });
+    expect(body.adapters).toHaveProperty('memos');
+    expect(body.adapters.memos).toEqual({ status: 'healthy' });
+  });
+  
+  it('should return health status with degraded adapters', async () => {
+    // Mock health responses
+    mockAdGuardHealth.mockResolvedValue({ status: 'healthy' });
+    mockNtfyHealth.mockResolvedValue({ status: 'degraded', message: 'High latency' });
+    mockMemosHealth.mockResolvedValue({ status: 'down', message: 'Service unavailable' });
+    
+    // Create a valid JWT token for testing
+    const token = signAccessToken('test-user-id', 'admin');
+    
+    const response = await testApp.handle(
+      new Request('http://localhost:3002/api/v2/health', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+    );
+    
+    expect(response.status).toBe(200);
+    
+    const body = await response.json();
+    expect(body).toHaveProperty('adapters');
+    expect(body.adapters).toHaveProperty('adguard');
+    expect(body.adapters.adguard).toEqual({ status: 'healthy' });
+    expect(body.adapters).toHaveProperty('ntfy');
+    expect(body.adapters.ntfy).toEqual({ status: 'degraded', message: 'High latency' });
+    expect(body.adapters).toHaveProperty('memos');
+    expect(body.adapters.memos).toEqual({ status: 'down', message: 'Service unavailable' });
+  });
+  
+  it('should return 401 when no Authorization header is provided', async () => {
+    const response = await testApp.handle(
+      new Request('http://localhost:3002/api/v2/health')
+    );
+    
+    expect(response.status).toBe(401);
   });
 });
 
@@ -60,16 +134,29 @@ describe('Health API - Boot-time import', () => {
     // Import the adapters module which should register them
     await import('../../providers/adapters/index.ts');
     
+    // Mock the health methods for the real providers
+    const providers = providerRegistry.list();
+    for (const provider of providers) {
+      vi.spyOn(provider, 'health').mockResolvedValue({ status: 'healthy' });
+    }
+    
+    // Create a valid JWT token for testing
+    const token = signAccessToken('test-user-id', 'admin');
+    
     const response = await testApp.handle(
-      new Request('http://localhost:3002/api/v2/health')
+      new Request('http://localhost:3002/api/v2/health', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
     );
     
     expect(response.status).toBe(200);
     
     const body = await response.json();
     expect(body).toHaveProperty('adapters');
-    expect(body.adapters).toHaveProperty('adguard', true);
-    expect(body.adapters).toHaveProperty('ntfy', true);
-    expect(body.adapters).toHaveProperty('memos', true);
+    expect(body.adapters).toHaveProperty('adguard');
+    expect(body.adapters).toHaveProperty('ntfy');
+    expect(body.adapters).toHaveProperty('memos');
   });
 });
