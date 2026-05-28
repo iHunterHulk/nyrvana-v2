@@ -43,3 +43,33 @@ describe('Health API', () => {
     expect(body.adapters).toHaveProperty('memos', true);
   });
 });
+
+// Test the actual boot-time import path
+describe('Health API - Boot-time import', () => {
+  beforeEach(() => {
+    // Clear the singleton to ensure we're testing the import
+    providerRegistry.clear();
+  });
+
+  afterAll(() => {
+    // Clear providers after tests
+    providerRegistry.clear();
+  });
+
+  it('should register adapters at boot time', async () => {
+    // Import the adapters module which should register them
+    await import('../../providers/adapters/index.ts');
+    
+    const response = await testApp.handle(
+      new Request('http://localhost:3002/api/v2/health')
+    );
+    
+    expect(response.status).toBe(200);
+    
+    const body = await response.json();
+    expect(body).toHaveProperty('adapters');
+    expect(body.adapters).toHaveProperty('adguard', true);
+    expect(body.adapters).toHaveProperty('ntfy', true);
+    expect(body.adapters).toHaveProperty('memos', true);
+  });
+});
