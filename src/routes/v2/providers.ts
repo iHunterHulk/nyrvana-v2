@@ -14,8 +14,15 @@ export const providers = new Elysia({ prefix: '/api/v2/providers' })
       throw new Error('User ID not found in headers');
     }
     
-    const result = await providerRegistry.get(id)?.execute(op, body, { userId } as any);
-    return result;
+    const provider = providerRegistry.get(id);
+    if (!provider) {
+      throw new Error(`Provider not found: ${id}`);
+    }
+    const fn = provider.query[op] || provider.mutation[op];
+    if (!fn) {
+      throw new Error(`Op not found: ${op}`);
+    }
+    return fn(body, { userId } as any);
   }, {
     beforeHandle: requireUser
   });

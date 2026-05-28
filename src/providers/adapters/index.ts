@@ -2,7 +2,7 @@
 import { AdGuardProvider } from './adguard.provider';
 import { NtfyProvider } from './ntfy.provider';
 import { MemosProvider } from './memos.provider';
-import { registry } from '../registry-singleton';
+import { providerRegistry as registry } from '../registry-singleton';
 
 export { AdGuardProvider, NtfyProvider, MemosProvider };
 
