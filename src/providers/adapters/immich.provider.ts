@@ -125,15 +125,15 @@ export class ImmichProvider implements ServiceProvider {
     
     search: async (params: unknown, ctx: UserContext) => {
       try {
-        // Type guard for params
-        if (!params || typeof params !== 'object' || !params.query || typeof params.query !== 'string') {
+        const typedParams = params as { query?: string };
+        if (!typedParams.query || typeof typedParams.query !== 'string') {
           throw new Error('Invalid parameters: query is required and must be a string');
         }
         
         const { url, apiKey } = this.resolveAuth(ctx);
         
         const searchParams = new URLSearchParams({
-          q: params.query
+          q: typedParams.query
         });
         
         const response = await this.circuitBreaker.execute(() => 
