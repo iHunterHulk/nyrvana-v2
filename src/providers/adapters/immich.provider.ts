@@ -123,7 +123,7 @@ export class ImmichProvider implements ServiceProvider {
       }
     },
     
-    search: async (params: { query: string }, ctx: UserContext) => {
+    search: async (params: unknown, ctx: UserContext) => {
       try {
         // Type guard for params
         if (!params || typeof params !== 'object' || !params.query || typeof params.query !== 'string') {
