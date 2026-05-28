@@ -1,12 +1,13 @@
 import { Elysia } from 'elysia';
 import { providerRegistry } from '../../providers/registry-singleton';
-import { requireUser } from '../../middleware/requireUser';
+import { requireJWT } from '../../middleware/requireJWT';
 
 export const providers = new Elysia({ prefix: '/api/v2/providers' })
+  .guard({ beforeHandle: requireJWT })
   .get('/', () => {
     return providerRegistry.list().map(provider => provider.id);
   })
-  .post('/:id/:op', async ({ params, body, headers }) => {
+  .post('/:id/:op', async ({ params, body, headers }: { params: any; body: any; headers: any }) => {
     const { id, op } = params as { id: string, op: string };
     const userId = headers['x-nyrvana-user-id'];
     
@@ -23,6 +24,4 @@ export const providers = new Elysia({ prefix: '/api/v2/providers' })
       throw new Error(`Op not found: ${op}`);
     }
     return fn(body, { userId } as any);
-  }, {
-    beforeHandle: requireUser
   });

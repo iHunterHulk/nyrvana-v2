@@ -1,8 +1,9 @@
+process.env.NYRVANA_JWT_SECRET = process.env.NYRVANA_JWT_SECRET || 'test-jwt-secret';
 import { Elysia } from 'elysia';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { models } from './models';
 import { providerRegistry } from '../../providers/registry-singleton';
-import { createHmac } from 'crypto';
+import { signAccessToken } from '../../lib/jwt';
 
 // Mock the provider registry
 vi.mock('../../providers/registry-singleton', () => ({
@@ -33,16 +34,14 @@ describe('GET /api/v2/models', () => {
     (providerRegistry.list as ReturnType<typeof vi.fn>).mockReturnValue([]);
 
     // Create a valid signature
-    const validSignature = createHmac('sha256', TEST_SECRET)
-      .update(TEST_USER_ID)
-      .digest('hex');
+    const validJWT = signAccessToken(TEST_USER_ID, 'admin');
 
     const response = await testApp.handle(
       new Request('http://localhost:3002/api/v2/models', {
         method: 'GET',
         headers: {
-          'x-nyrvana-user-id': TEST_USER_ID,
-          'x-nyrvana-signature': validSignature
+          
+          'Authorization': `Bearer ${validJWT}`
         }
       })
     );
@@ -65,16 +64,14 @@ describe('GET /api/v2/models', () => {
     (providerRegistry.list as ReturnType<typeof vi.fn>).mockReturnValue([mockOllamaProvider]);
 
     // Create a valid signature
-    const validSignature = createHmac('sha256', TEST_SECRET)
-      .update(TEST_USER_ID)
-      .digest('hex');
+    const validJWT = signAccessToken(TEST_USER_ID, 'admin');
 
     const response = await testApp.handle(
       new Request('http://localhost:3002/api/v2/models', {
         method: 'GET',
         headers: {
-          'x-nyrvana-user-id': TEST_USER_ID,
-          'x-nyrvana-signature': validSignature
+          
+          'Authorization': `Bearer ${validJWT}`
         }
       })
     );
@@ -103,16 +100,14 @@ describe('GET /api/v2/models', () => {
     (providerRegistry.list as ReturnType<typeof vi.fn>).mockReturnValue([mockErrorProvider]);
 
     // Create a valid signature
-    const validSignature = createHmac('sha256', TEST_SECRET)
-      .update(TEST_USER_ID)
-      .digest('hex');
+    const validJWT = signAccessToken(TEST_USER_ID, 'admin');
 
     const response = await testApp.handle(
       new Request('http://localhost:3002/api/v2/models', {
         method: 'GET',
         headers: {
-          'x-nyrvana-user-id': TEST_USER_ID,
-          'x-nyrvana-signature': validSignature
+          
+          'Authorization': `Bearer ${validJWT}`
         }
       })
     );
@@ -133,16 +128,14 @@ describe('GET /api/v2/models', () => {
     (providerRegistry.list as ReturnType<typeof vi.fn>).mockReturnValue([mockProviderWithoutListModels]);
 
     // Create a valid signature
-    const validSignature = createHmac('sha256', TEST_SECRET)
-      .update(TEST_USER_ID)
-      .digest('hex');
+    const validJWT = signAccessToken(TEST_USER_ID, 'admin');
 
     const response = await testApp.handle(
       new Request('http://localhost:3002/api/v2/models', {
         method: 'GET',
         headers: {
-          'x-nyrvana-user-id': TEST_USER_ID,
-          'x-nyrvana-signature': validSignature
+          
+          'Authorization': `Bearer ${validJWT}`
         }
       })
     );

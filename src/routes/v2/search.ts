@@ -1,13 +1,14 @@
-import { Elysia, t } from 'elysia';
-import { requireUser } from '../../middleware/requireUser';
+import { Elysia } from "elysia";
+import { requireJWT } from '../../middleware/requireJWT';
 import { providerRegistry } from '../../providers/registry-singleton';
 import type { UserContext } from '../../providers/types';
 import { createUserContext } from '../../lib/user-context';
 
 const search = new Elysia({ prefix: '/api/v2/search' })
+  .guard({ beforeHandle: requireJWT })
   .post(
     '/',
-    async ({ body, set, headers }) => {
+    async ({ body, set, headers }: { body: any; set: any; headers: any }) => {
       const ollama = providerRegistry.get('ollama');
       if (!ollama || !ollama.mutation || !ollama.mutation['chat']) {
         set.status = 500;
@@ -108,12 +109,6 @@ const search = new Elysia({ prefix: '/api/v2/search' })
         set.status = 500;
         return { error: (error as Error).message || 'Unknown error' };
       }
-    },
-    {
-      body: t.Object({
-        query: t.String()
-      }),
-      beforeHandle: requireUser
     }
   );
 
