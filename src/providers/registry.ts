@@ -47,7 +47,8 @@ export class ProviderRegistry {
             error: () => {},
             debug: () => {}
           },
-          audit: async () => {}
+          audit: async () => {},
+      credentials: {}
         });
         results[id] = health.status === 'healthy';
       } catch (error) {

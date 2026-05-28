@@ -16,6 +16,8 @@ export type Capability =
 
 export interface UserContext {
   userId: string;
+  /** per-adapter decrypted credentials loaded by createUserContext */
+  credentials: Record<string, unknown>;
   /** wrapped DEK for this provider; unwrap inside provider with crypto helper */
   wrappedDEK: string;
   /** OIDC access token forwarded from Authelia */

@@ -16,7 +16,7 @@ const search = new Elysia({ prefix: '/api/v2/search' })
       }
 
       // Create user context using the factory
-      const context = createUserContext({ headers });
+      const context = await createUserContext({ headers });
 
       // Build a tool-spec from the registry
       const registry = providerRegistry.list();
