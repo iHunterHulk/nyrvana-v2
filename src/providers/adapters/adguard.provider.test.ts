@@ -28,14 +28,14 @@ describe('AdGuardProvider', () => {
   
   it('should pass health check when API is healthy', async () => {
     const mockFetch = createMockFetch({
-      'GET:http://localhost:3000/control/status': { status: 200, body: { running: true } }
+      'GET:http://localhost:8080/control/status': { status: 200, body: { running: true } }
     });
     
     const ctx = createMockUserContext({ fetch: mockFetch });
     
     // Set environment variables for testing
     const originalEnv = process.env;
-    process.env = { ...originalEnv, NYRVANA_ADGUARD_API_KEY: 'test-key' };
+    process.env = { ...originalEnv, NYRVANA_ADGUARD_USER: 'admin', NYRVANA_ADGUARD_PASS: 'secret' };
     
     const result = await provider.health(ctx);
     
@@ -50,12 +50,12 @@ describe('AdGuardProvider', () => {
     
     // Set environment variables for testing
     const originalEnv = process.env;
-    process.env = { ...originalEnv, NYRVANA_ADGUARD_API_KEY: '' };
+    process.env = { ...originalEnv, NYRVANA_ADGUARD_USER: '', NYRVANA_ADGUARD_PASS: '' };
     
     const result = await provider.health(ctx);
     
     expect(result.status).toBe('down');
-    expect(result.message).toBe('AdGuard API key not configured');
+    expect(result.message).toBe('AdGuard user or password not configured');
     
     // Restore environment
     process.env = originalEnv;
@@ -64,14 +64,14 @@ describe('AdGuardProvider', () => {
   it('should get stats successfully', async () => {
     const mockStats = { num_dns_queries: 100, num_blocked_filtering: 10 };
     const mockFetch = createMockFetch({
-      'GET:http://localhost:3000/control/stats': { status: 200, body: mockStats }
+      'GET:http://localhost:8080/control/stats': { status: 200, body: mockStats }
     });
     
     const ctx = createMockUserContext({ fetch: mockFetch });
     
     // Set environment variables for testing
     const originalEnv = process.env;
-    process.env = { ...originalEnv, NYRVANA_ADGUARD_API_KEY: 'test-key' };
+    process.env = { ...originalEnv, NYRVANA_ADGUARD_USER: 'admin', NYRVANA_ADGUARD_PASS: 'secret' };
     
     const result = await provider.query.getStats({}, ctx);
     
@@ -83,14 +83,14 @@ describe('AdGuardProvider', () => {
   
   it('should add blocklist successfully', async () => {
     const mockFetch = createMockFetch({
-      'POST:http://localhost:3000/control/access/set_url': { status: 200, body: { } }
+      'POST:http://localhost:8080/control/access/set_url': { status: 200, body: { } }
     });
     
     const ctx = createMockUserContext({ fetch: mockFetch });
     
     // Set environment variables for testing
     const originalEnv = process.env;
-    process.env = { ...originalEnv, NYRVANA_ADGUARD_API_KEY: 'test-key' };
+    process.env = { ...originalEnv, NYRVANA_ADGUARD_USER: 'admin', NYRVANA_ADGUARD_PASS: 'secret' };
     
     const result = await provider.mutation.addBlocklist({ url: 'example.com' }, ctx);
     
