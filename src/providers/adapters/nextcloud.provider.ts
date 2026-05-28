@@ -83,7 +83,7 @@ export class NextcloudProvider implements ServiceProvider {
   }
   
   query = {
-    listFiles: async (params: { path?: string }, ctx: UserContext) => {
+    listFiles: async (params: unknown, ctx: UserContext) => {
       try {
         // Check for credentials in ctx first
         const creds = (ctx.credentials[this.id] as any);
