@@ -27,20 +27,23 @@ export class AdGuardProvider implements ServiceProvider {
   
   async health(ctx: UserContext): Promise<HealthStatus> {
     try {
-      const url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:3000');
-      const apiKey = getEnvVar('NYRVANA_ADGUARD_API_KEY');
+      const url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:8080');
+      const user = getEnvVar('NYRVANA_ADGUARD_USER');
+      const pass = getEnvVar('NYRVANA_ADGUARD_PASS');
       
-      if (!apiKey) {
+      if (!user || !pass) {
         return { 
           status: 'down', 
-          message: 'AdGuard API key not configured' 
+          message: 'AdGuard user or password not configured' 
         };
       }
+      
+      const credentials = btoa(`${user}:${pass}`);
       
       const response = await this.circuitBreaker.execute(() => 
         ctx.fetch(`${url}/control/status`, {
           headers: {
-            'Authorization': `Basic ${apiKey}`,
+            'Authorization': `Basic ${credentials}`,
             'Content-Type': 'application/json'
           }
         })
@@ -65,13 +68,20 @@ export class AdGuardProvider implements ServiceProvider {
   query = {
     getStats: async (_params: unknown, ctx: UserContext) => {
       try {
-        const url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:3000');
-        const apiKey = getEnvVar('NYRVANA_ADGUARD_API_KEY');
+        const url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:8080');
+        const user = getEnvVar('NYRVANA_ADGUARD_USER');
+        const pass = getEnvVar('NYRVANA_ADGUARD_PASS');
+        
+        if (!user || !pass) {
+          throw new Error('AdGuard user or password not configured');
+        }
+        
+        const credentials = btoa(`${user}:${pass}`);
         
         const response = await this.circuitBreaker.execute(() => 
           ctx.fetch(`${url}/control/stats`, {
             headers: {
-              'Authorization': `Basic ${apiKey}`,
+              'Authorization': `Basic ${credentials}`,
               'Content-Type': 'application/json'
             }
           })
@@ -90,13 +100,20 @@ export class AdGuardProvider implements ServiceProvider {
     
     getBlockStats: async (_params: unknown, ctx: UserContext) => {
       try {
-        const url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:3000');
-        const apiKey = getEnvVar('NYRVANA_ADGUARD_API_KEY');
+        const url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:8080');
+        const user = getEnvVar('NYRVANA_ADGUARD_USER');
+        const pass = getEnvVar('NYRVANA_ADGUARD_PASS');
+        
+        if (!user || !pass) {
+          throw new Error('AdGuard user or password not configured');
+        }
+        
+        const credentials = btoa(`${user}:${pass}`);
         
         const response = await this.circuitBreaker.execute(() => 
           ctx.fetch(`${url}/control/stats_top`, {
             headers: {
-              'Authorization': `Basic ${apiKey}`,
+              'Authorization': `Basic ${credentials}`,
               'Content-Type': 'application/json'
             }
           })
