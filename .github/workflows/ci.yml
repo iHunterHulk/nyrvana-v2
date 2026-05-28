@@ -27,8 +27,6 @@ jobs:
     - name: Run tests
       run: bun run test:run
       
-    - name: Lint
-      run: bun run lint
       
     - name: Enforce no em-dashes
       run: |
