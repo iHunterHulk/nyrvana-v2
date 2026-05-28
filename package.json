@@ -13,8 +13,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "bun run --watch src/server.ts",
-    "start": "bun run src/server.ts",
+    "dev": "echo 'src/server.ts will arrive in PR 4' && exit 0",
+    "start": "echo 'src/server.ts will arrive in PR 4' && exit 0",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@types/bun": "^1.1.0",
+    "@types/node": "^25.9.1",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "@vitest/coverage-v8": "^1.0.0",
