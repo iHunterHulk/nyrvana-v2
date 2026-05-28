@@ -2,6 +2,7 @@ import { Elysia, t } from 'elysia';
 import { requireUser } from '../../middleware/requireUser';
 import { providerRegistry } from '../../providers/registry-singleton';
 import type { UserContext } from '../../providers/types';
+import { createUserContext } from '../../lib/user-context';
 
 const search = new Elysia({ prefix: '/api/v2/search' })
   .post(
@@ -13,21 +14,8 @@ const search = new Elysia({ prefix: '/api/v2/search' })
         return { error: 'Ollama provider not available or does not support chat' };
       }
 
-      // Create a mock context for testing purposes
-      // In a real implementation, this would come from the authenticated user context
-      const mockContext: UserContext = {
-        userId: headers['x-nyrvana-user-id'] || 'test-user',
-        wrappedDEK: '',
-        oidcToken: '',
-        fetch: fetch,
-        logger: {
-          info: console.info,
-          warn: console.warn,
-          error: console.error,
-          debug: console.debug
-        },
-        audit: async () => {}
-      };
+      // Create user context using the factory
+      const context = createUserContext({ headers });
 
       // Build a tool-spec from the registry
       const registry = providerRegistry.list();
@@ -66,7 +54,7 @@ const search = new Elysia({ prefix: '/api/v2/search' })
               }
             ]
           }, 
-          mockContext
+          context
         );
 
         // Type assertion for the response
@@ -107,7 +95,7 @@ const search = new Elysia({ prefix: '/api/v2/search' })
 
           const results = await queryFn(
             routingDecision.args || {},
-            mockContext
+            context
           );
 
           return { results, adapter: routingDecision.adapter, op: routingDecision.op };
