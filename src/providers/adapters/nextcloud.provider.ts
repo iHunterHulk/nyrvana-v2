@@ -106,7 +106,7 @@ export class NextcloudProvider implements ServiceProvider {
           throw new Error('Nextcloud user or password not configured');
         }
         
-        const path = params?.path || '';
+        const path = ((params as { path?: string } | undefined)?.path) || '';
         const webdavUrl = `${url}/remote.php/webdav${path}`;
         const credentials = Buffer.from(`${user}:${pass}`).toString('base64');
         
