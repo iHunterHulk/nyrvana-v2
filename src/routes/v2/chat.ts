@@ -30,7 +30,7 @@ const chat = new Elysia({ prefix: '/api/v2/chat' })
       set.headers['Connection'] = 'keep-alive';
 
       // Create user context using the factory
-      const context = createUserContext({ headers });
+      const context = await createUserContext({ headers });
 
       return new Response(
         new ReadableStream({

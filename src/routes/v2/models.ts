@@ -9,7 +9,7 @@ const models = new Elysia({ prefix: '/api/v2/models' })
     '/',
     async ({ headers }: { headers: any }) => {
       // Create user context using the factory
-      const context = createUserContext({ headers });
+      const context = await createUserContext({ headers });
 
       const registry = providerRegistry.list();
       const modelList: Array<{ id: string; name: string; provider: string }> = [];

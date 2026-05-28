@@ -8,6 +8,7 @@ export const createMockUserContext = (overrides: Partial<UserContext> = {}): Use
   fetch: fetch,
   logger: createMockLogger(),
   audit: async (_event: AuditEvent) => {},
+  credentials: {},
   ...overrides
 });
 
