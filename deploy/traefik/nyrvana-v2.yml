@@ -1,0 +1,15 @@
+http:
+  routers:
+    nyrvana-v2-router:
+      rule: "PathPrefix(`/api/v2/`)"
+      service: nyrvana-v2-service
+      priority: 100
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+  services:
+    nyrvana-v2-service:
+      loadBalancer:
+        servers:
+          - url: "http://bun-backend:3002"

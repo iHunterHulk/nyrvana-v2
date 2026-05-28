@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  bun-backend:
+    build:
+      context: ../
+      dockerfile: deploy/Dockerfile
+    container_name: nyrvana-v2-bun-backend
+    restart: unless-stopped
+    networks:
+      - nyrvana_net
+    ports:
+      - "127.0.0.1:3002:3002"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/api/v2/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  nyrvana_net:
+    external: true
