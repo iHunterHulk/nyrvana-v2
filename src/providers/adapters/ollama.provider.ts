@@ -278,6 +278,7 @@ export class OllamaProvider implements ServiceProvider {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
+      let buffer = "";
 
       try {
         while (true) {
@@ -285,9 +286,12 @@ export class OllamaProvider implements ServiceProvider {
           if (done) break;
 
           const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n').filter(line => line.trim() !== '');
+          buffer += chunk;
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || "";
 
           for (const line of lines) {
+            if (line.trim() === '') continue;
             try {
               const data: OllamaChatStreamResponse = JSON.parse(line);
               if (data.message && data.message.content) {
@@ -299,6 +303,18 @@ export class OllamaProvider implements ServiceProvider {
             } catch (parseError) {
               ctx.logger.warn('Failed to parse Ollama stream line', { line, error: parseError });
             }
+          }
+        }
+        
+        // Handle any remaining content in the buffer after the loop
+        if (buffer.trim() !== '') {
+          try {
+            const data: OllamaChatStreamResponse = JSON.parse(buffer);
+            if (data.message && data.message.content) {
+              yield { content: data.message.content };
+            }
+          } catch (parseError) {
+            ctx.logger.warn('Failed to parse remaining Ollama stream buffer', { buffer, error: parseError });
           }
         }
       } finally {
