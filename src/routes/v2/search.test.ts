@@ -1,8 +1,9 @@
+process.env.NYRVANA_JWT_SECRET = process.env.NYRVANA_JWT_SECRET || 'test-jwt-secret';
 import { describe, it, expect, beforeEach, vi, beforeAll, afterAll } from 'vitest';
 import { Elysia } from 'elysia';
 import { search } from './search';
 import { providerRegistry } from '../../providers/registry-singleton';
-import { createHmac } from 'crypto';
+import { signAccessToken } from '../../lib/jwt';
 
 // Create a test app
 const testApp = new Elysia().use(search);
@@ -36,17 +37,15 @@ describe('Search API', () => {
     });
 
     // Create a valid signature
-    const validSignature = createHmac('sha256', TEST_SECRET)
-      .update(TEST_USER_ID)
-      .digest('hex');
+    const validJWT = signAccessToken(TEST_USER_ID, 'admin');
 
     const response = await testApp.handle(
       new Request('http://localhost/api/v2/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-nyrvana-user-id': TEST_USER_ID,
-          'x-nyrvana-signature': validSignature
+          
+          'Authorization': `Bearer ${validJWT}`
         },
         body: JSON.stringify({ query: 'test query' })
       })
@@ -86,17 +85,15 @@ describe('Search API', () => {
     ] as any);
 
     // Create a valid signature
-    const validSignature = createHmac('sha256', TEST_SECRET)
-      .update(TEST_USER_ID)
-      .digest('hex');
+    const validJWT = signAccessToken(TEST_USER_ID, 'admin');
 
     const response = await testApp.handle(
       new Request('http://localhost/api/v2/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-nyrvana-user-id': TEST_USER_ID,
-          'x-nyrvana-signature': validSignature
+          
+          'Authorization': `Bearer ${validJWT}`
         },
         body: JSON.stringify({ query: 'test query' })
       })
@@ -151,17 +148,15 @@ describe('Search API', () => {
     ] as any);
 
     // Create a valid signature
-    const validSignature = createHmac('sha256', TEST_SECRET)
-      .update(TEST_USER_ID)
-      .digest('hex');
+    const validJWT = signAccessToken(TEST_USER_ID, 'admin');
 
     const response = await testApp.handle(
       new Request('http://localhost/api/v2/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-nyrvana-user-id': TEST_USER_ID,
-          'x-nyrvana-signature': validSignature
+          
+          'Authorization': `Bearer ${validJWT}`
         },
         body: JSON.stringify({ query: 'test query' })
       })
@@ -201,17 +196,15 @@ describe('Search API', () => {
     ] as any);
 
     // Create a valid signature
-    const validSignature = createHmac('sha256', TEST_SECRET)
-      .update(TEST_USER_ID)
-      .digest('hex');
+    const validJWT = signAccessToken(TEST_USER_ID, 'admin');
 
     const response = await testApp.handle(
       new Request('http://localhost/api/v2/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-nyrvana-user-id': TEST_USER_ID,
-          'x-nyrvana-signature': validSignature
+          
+          'Authorization': `Bearer ${validJWT}`
         },
         body: JSON.stringify({ query: 'test query' })
       })

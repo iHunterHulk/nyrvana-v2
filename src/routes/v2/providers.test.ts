@@ -1,3 +1,4 @@
+process.env.NYRVANA_JWT_SECRET = process.env.NYRVANA_JWT_SECRET || 'test-jwt-secret';
 import { beforeAll, afterAll, describe, it, expect, vi } from 'vitest';
 import { Elysia } from 'elysia';
 import { providers } from './providers';
@@ -5,7 +6,7 @@ import { providerRegistry } from '../../providers/registry-singleton';
 import { AdGuardProvider } from '../../providers/adapters/adguard.provider';
 import { NtfyProvider } from '../../providers/adapters/ntfy.provider';
 import { MemosProvider } from '../../providers/adapters/memos.provider';
-import { createHmac } from 'crypto';
+import { signAccessToken } from '../../lib/jwt';
 
 // Create a test app
 const testApp = new Elysia()
@@ -35,8 +36,7 @@ describe('Providers API', () => {
 
   it('should list all registered providers', async () => {
     const response = await testApp.handle(
-      new Request('http://localhost:3002/api/v2/providers')
-    );
+      new Request('http://localhost:3002/api/v2/providers', { headers: { 'Authorization': `Bearer ${signAccessToken(TEST_USER_ID, 'admin')}` } }));
     
     expect(response.status).toBe(200);
     expect(response.headers.get('content-type')).toContain('application/json');
@@ -65,8 +65,8 @@ describe('Providers API', () => {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
-          'x-nyrvana-user-id': TEST_USER_ID,
-          'x-nyrvana-signature': 'invalid-signature'
+          
+          'Authorization': 'Bearer invalid.token.here'
         },
         body: JSON.stringify({ test: 'data' })
       })
@@ -77,9 +77,7 @@ describe('Providers API', () => {
 
   it('should accept requests with valid signature', async () => {
     // Create a valid signature
-    const validSignature = createHmac('sha256', TEST_SECRET)
-      .update(TEST_USER_ID)
-      .digest('hex');
+    const validJWT = signAccessToken(TEST_USER_ID, 'admin');
     
     // This will still fail because the provider doesn't have the operation,
     // but it should pass authentication
@@ -88,8 +86,8 @@ describe('Providers API', () => {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
-          'x-nyrvana-user-id': TEST_USER_ID,
-          'x-nyrvana-signature': validSignature
+          
+          'Authorization': `Bearer ${validJWT}`
         },
         body: JSON.stringify({ test: 'data' })
       })

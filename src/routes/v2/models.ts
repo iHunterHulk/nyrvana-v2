@@ -1,12 +1,13 @@
 import { Elysia } from 'elysia';
-import { requireUser } from '../../middleware/requireUser';
+import { requireJWT } from '../../middleware/requireJWT';
 import { providerRegistry } from '../../providers/registry-singleton';
 import { createUserContext } from '../../lib/user-context';
 
 const models = new Elysia({ prefix: '/api/v2/models' })
+  .guard({ beforeHandle: requireJWT })
   .get(
     '/',
-    async ({ headers }) => {
+    async ({ headers }: { headers: any }) => {
       // Create user context using the factory
       const context = createUserContext({ headers });
 
@@ -37,9 +38,6 @@ const models = new Elysia({ prefix: '/api/v2/models' })
       }
 
       return modelList;
-    },
-    {
-      beforeHandle: requireUser
     }
   );
 

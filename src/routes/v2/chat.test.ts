@@ -1,3 +1,4 @@
+process.env.NYRVANA_JWT_SECRET = process.env.NYRVANA_JWT_SECRET || 'test-jwt-secret';
 import { beforeAll, afterAll, describe, it, expect, vi } from 'vitest';
 import { Elysia } from 'elysia';
 import { chat } from './chat';
@@ -5,7 +6,7 @@ import { beforeAll, afterAll, describe, it, expect, vi } from 'vitest';
 import { Elysia } from 'elysia';
 import { chat } from './chat';
 import { providerRegistry } from '../../providers/registry-singleton';
-import { createHmac } from 'crypto';
+import { signAccessToken } from '../../lib/jwt';
 
 // Create a test app
 const testApp = new Elysia()
@@ -42,17 +43,15 @@ describe('POST /api/v2/chat', () => {
     vi.spyOn(providerRegistry, 'get').mockReturnValue(mockOllama);
 
     // Create a valid signature
-    const validSignature = createHmac('sha256', TEST_SECRET)
-      .update(TEST_USER_ID)
-      .digest('hex');
+    const validJWT = signAccessToken(TEST_USER_ID, 'admin');
 
     const response = await testApp.handle(
       new Request('http://localhost:3002/api/v2/chat', {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
-          'x-nyrvana-user-id': TEST_USER_ID,
-          'x-nyrvana-signature': validSignature
+          
+          'Authorization': `Bearer ${validJWT}`
         },
         body: JSON.stringify({
           messages: [
@@ -86,17 +85,15 @@ describe('POST /api/v2/chat', () => {
     vi.spyOn(providerRegistry, 'get').mockReturnValue(mockOllama);
 
     // Create a valid signature
-    const validSignature = createHmac('sha256', TEST_SECRET)
-      .update(TEST_USER_ID)
-      .digest('hex');
+    const validJWT = signAccessToken(TEST_USER_ID, 'admin');
 
     const response = await testApp.handle(
       new Request('http://localhost:3002/api/v2/chat', {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
-          'x-nyrvana-user-id': TEST_USER_ID,
-          'x-nyrvana-signature': validSignature
+          
+          'Authorization': `Bearer ${validJWT}`
         },
         body: JSON.stringify({
           messages: [
