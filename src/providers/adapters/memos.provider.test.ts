@@ -29,7 +29,14 @@ describe('MemosProvider', () => {
       'GET:http://localhost:5230/api/v1/status': { status: 200, body: { status: 'OK' } }
     });
     
-    const ctx = createMockUserContext({ fetch: mockFetch });
+    const ctx = createMockUserContext({ 
+      fetch: mockFetch,
+      credentials: {
+        memos: {
+          url: 'http://localhost:5230'
+        }
+      }
+    });
     
     const result = await provider.health(ctx);
     
@@ -42,7 +49,14 @@ describe('MemosProvider', () => {
       'GET:http://localhost:5230/api/v1/memo?limit=10&offset=0': { status: 200, body: mockMemos }
     });
     
-    const ctx = createMockUserContext({ fetch: mockFetch });
+    const ctx = createMockUserContext({ 
+      fetch: mockFetch,
+      credentials: {
+        memos: {
+          url: 'http://localhost:5230'
+        }
+      }
+    });
     
     const result = await provider.query.getMemos({}, ctx);
     
@@ -55,7 +69,14 @@ describe('MemosProvider', () => {
       'POST:http://localhost:5230/api/v1/memo': { status: 200, body: mockMemo }
     });
     
-    const ctx = createMockUserContext({ fetch: mockFetch });
+    const ctx = createMockUserContext({ 
+      fetch: mockFetch,
+      credentials: {
+        memos: {
+          url: 'http://localhost:5230'
+        }
+      }
+    });
     
     const result = await provider.mutation.createMemo({ content: 'Test memo' }, ctx);
     
@@ -68,7 +89,14 @@ describe('MemosProvider', () => {
       'PUT:http://localhost:5230/api/v1/memo/123': { status: 200, body: mockMemo }
     });
     
-    const ctx = createMockUserContext({ fetch: mockFetch });
+    const ctx = createMockUserContext({ 
+      fetch: mockFetch,
+      credentials: {
+        memos: {
+          url: 'http://localhost:5230'
+        }
+      }
+    });
     
     const result = await provider.mutation.updateMemo({ id: '123', content: 'Updated memo' }, ctx);
     
@@ -80,7 +108,14 @@ describe('MemosProvider', () => {
       'DELETE:http://localhost:5230/api/v1/memo/123': { status: 200, body: {} }
     });
     
-    const ctx = createMockUserContext({ fetch: mockFetch });
+    const ctx = createMockUserContext({ 
+      fetch: mockFetch,
+      credentials: {
+        memos: {
+          url: 'http://localhost:5230'
+        }
+      }
+    });
     
     const result = await provider.mutation.deleteMemo({ id: '123' }, ctx);
     
@@ -93,7 +128,14 @@ describe('MemosProvider', () => {
       'GET:http://localhost:5230/api/v1/memo?content=search': { status: 200, body: mockMemos }
     });
     
-    const ctx = createMockUserContext({ fetch: mockFetch });
+    const ctx = createMockUserContext({ 
+      fetch: mockFetch,
+      credentials: {
+        memos: {
+          url: 'http://localhost:5230'
+        }
+      }
+    });
     
     const result = await provider.query.searchMemos({ query: 'search' }, ctx);
     
@@ -120,7 +162,13 @@ describe('MemosProvider', () => {
     const originalGetMemos = provider.query.getMemos;
     provider.query.getMemos = async () => mockMemos;
     
-    const ctx = createMockUserContext();
+    const ctx = createMockUserContext({
+      credentials: {
+        memos: {
+          url: 'http://localhost:5230'
+        }
+      }
+    });
     
     const results = [];
     for await (const doc of provider.index!(ctx)) {

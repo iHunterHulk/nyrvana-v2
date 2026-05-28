@@ -24,10 +24,22 @@ export class MemosProvider implements ServiceProvider {
   });
   
   constructor() {}
+
+  private resolveUrl(ctx: UserContext): string {
+    const creds = (ctx.credentials[this.id] as any);
+    if (creds && typeof creds === 'object' && typeof creds.url === 'string') {
+      return creds.url;
+    }
+    if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
+      return getEnvVar('NYRVANA_MEMOS_URL', 'http://localhost:5230');
+    }
+    throw new Error('credentials not configured for this user');
+  }
+
   
   async health(ctx: UserContext): Promise<HealthStatus> {
     try {
-      const url = getEnvVar('NYRVANA_MEMOS_URL', 'http://localhost:5230');
+      const url = this.resolveUrl(ctx);
       
       const response = await this.circuitBreaker.execute(() => 
         ctx.fetch(`${url}/api/v1/status`, {
@@ -57,7 +69,7 @@ export class MemosProvider implements ServiceProvider {
   query = {
     getMemos: async (params: unknown, ctx: UserContext) => {
       try {
-        const url = getEnvVar('NYRVANA_MEMOS_URL', 'http://localhost:5230');
+        const url = this.resolveUrl(ctx);
         
         // Type guard for params
         const limit = params && typeof params === 'object' && 'limit' in params && typeof params.limit === 'number' 
@@ -93,7 +105,7 @@ export class MemosProvider implements ServiceProvider {
           throw new Error('Invalid parameters: id is required and must be a string');
         }
         
-        const url = getEnvVar('NYRVANA_MEMOS_URL', 'http://localhost:5230');
+        const url = this.resolveUrl(ctx);
         const id = params.id;
         
         const response = await this.circuitBreaker.execute(() => 
@@ -122,7 +134,7 @@ export class MemosProvider implements ServiceProvider {
           throw new Error('Invalid parameters: query is required and must be a string');
         }
         
-        const url = getEnvVar('NYRVANA_MEMOS_URL', 'http://localhost:5230');
+        const url = this.resolveUrl(ctx);
         const query = params.query;
         
         const response = await this.circuitBreaker.execute(() => 
@@ -153,7 +165,7 @@ export class MemosProvider implements ServiceProvider {
           throw new Error('Invalid parameters: content is required and must be a string');
         }
         
-        const url = getEnvVar('NYRVANA_MEMOS_URL', 'http://localhost:5230');
+        const url = this.resolveUrl(ctx);
         const content = params.content;
         const visibility = params && typeof params === 'object' && 'visibility' in params && typeof params.visibility === 'string' 
           ? params.visibility 
@@ -200,7 +212,7 @@ export class MemosProvider implements ServiceProvider {
           throw new Error('Invalid parameters: id and content are required and must be strings');
         }
         
-        const url = getEnvVar('NYRVANA_MEMOS_URL', 'http://localhost:5230');
+        const url = this.resolveUrl(ctx);
         const id = params.id;
         const content = params.content;
         const visibility = params && typeof params === 'object' && 'visibility' in params && typeof params.visibility === 'string' 
@@ -246,7 +258,7 @@ export class MemosProvider implements ServiceProvider {
           throw new Error('Invalid parameters: id is required and must be a string');
         }
         
-        const url = getEnvVar('NYRVANA_MEMOS_URL', 'http://localhost:5230');
+        const url = this.resolveUrl(ctx);
         const id = params.id;
         
         const response = await this.circuitBreaker.execute(() => 
@@ -289,7 +301,7 @@ export class MemosProvider implements ServiceProvider {
             userId: ctx.userId,
             title: memo.content.substring(0, 50) + (memo.content.length > 50 ? '...' : ''),
             body: memo.content,
-            url: `${getEnvVar('NYRVANA_MEMOS_URL', 'http://localhost:5230')}/m/${memo.id}`,
+            url: `${this.resolveUrl(ctx)}/m/${memo.id}`,
             createdAt: memo.createdTs ? new Date(memo.createdTs * 1000).toISOString() : new Date().toISOString(),
             updatedAt: memo.updatedTs ? new Date(memo.updatedTs * 1000).toISOString() : new Date().toISOString()
           };

@@ -31,34 +31,31 @@ describe('AdGuardProvider', () => {
       'GET:http://localhost:8080/control/status': { status: 200, body: { running: true } }
     });
     
-    const ctx = createMockUserContext({ fetch: mockFetch });
-    
-    // Set environment variables for testing
-    const originalEnv = process.env;
-    process.env = { ...originalEnv, NYRVANA_ADGUARD_USER: 'admin', NYRVANA_ADGUARD_PASS: 'secret' };
+    const ctx = createMockUserContext({ 
+      fetch: mockFetch,
+      credentials: {
+        adguard: {
+          url: 'http://localhost:8080',
+          user: 'admin',
+          pass: 'secret'
+        }
+      }
+    });
     
     const result = await provider.health(ctx);
     
     expect(result.status).toBe('healthy');
-    
-    // Restore environment
-    process.env = originalEnv;
   });
   
   it('should fail health check when API key is missing', async () => {
-    const ctx = createMockUserContext();
-    
-    // Set environment variables for testing
-    const originalEnv = process.env;
-    process.env = { ...originalEnv, NYRVANA_ADGUARD_USER: '', NYRVANA_ADGUARD_PASS: '' };
+    const ctx = createMockUserContext({
+      credentials: {}
+    });
     
     const result = await provider.health(ctx);
     
     expect(result.status).toBe('down');
-    expect(result.message).toBe('AdGuard user or password not configured');
-    
-    // Restore environment
-    process.env = originalEnv;
+    expect(result.message).toBe('credentials not configured for this user');
   });
   
   it('should get stats successfully', async () => {
@@ -67,18 +64,20 @@ describe('AdGuardProvider', () => {
       'GET:http://localhost:8080/control/stats': { status: 200, body: mockStats }
     });
     
-    const ctx = createMockUserContext({ fetch: mockFetch });
-    
-    // Set environment variables for testing
-    const originalEnv = process.env;
-    process.env = { ...originalEnv, NYRVANA_ADGUARD_USER: 'admin', NYRVANA_ADGUARD_PASS: 'secret' };
+    const ctx = createMockUserContext({ 
+      fetch: mockFetch,
+      credentials: {
+        adguard: {
+          url: 'http://localhost:8080',
+          user: 'admin',
+          pass: 'secret'
+        }
+      }
+    });
     
     const result = await provider.query.getStats({}, ctx);
     
     expect(result).toEqual(mockStats);
-    
-    // Restore environment
-    process.env = originalEnv;
   });
   
   it('should add blocklist successfully', async () => {
@@ -86,18 +85,19 @@ describe('AdGuardProvider', () => {
       'POST:http://localhost:8080/control/access/set_url': { status: 200, body: { } }
     });
     
-    const ctx = createMockUserContext({ fetch: mockFetch });
-    
-    // Set environment variables for testing
-    const originalEnv = process.env;
-    process.env = { ...originalEnv, NYRVANA_ADGUARD_USER: 'admin', NYRVANA_ADGUARD_PASS: 'secret' };
+    const ctx = createMockUserContext({ 
+      fetch: mockFetch,
+      credentials: {
+        adguard: {
+          url: 'http://localhost:8080',
+          apiKey: 'test-api-key'
+        }
+      }
+    });
     
     const result = await provider.mutation.addBlocklist({ url: 'example.com' }, ctx);
     
     expect(result).toEqual({ success: true });
-    
-    // Restore environment
-    process.env = originalEnv;
   });
   
   it('should have correct widgets', () => {

@@ -58,6 +58,19 @@ describe('OllamaProvider', () => {
         statusText: 'OK',
       } as Response);
 
+      // Remove environment variables to test credentials path
+      delete process.env.OLLAMA_API_BASE;
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with credentials
+      mockContext.credentials = {
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          apiKey: 'test-key'
+        }
+      };
+
       const result: HealthStatus = await provider.health(mockContext);
       
       expect(result.status).toBe('healthy');
@@ -81,6 +94,19 @@ describe('OllamaProvider', () => {
         statusText: 'Internal Server Error',
       } as Response);
 
+      // Remove environment variables to test credentials path
+      delete process.env.OLLAMA_API_BASE;
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with credentials
+      mockContext.credentials = {
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          apiKey: 'test-key'
+        }
+      };
+
       const result: HealthStatus = await provider.health(mockContext);
       
       expect(result.status).toBe('degraded');
@@ -91,6 +117,19 @@ describe('OllamaProvider', () => {
     it('should return down status when API is unreachable', async () => {
       mockFetch.mockRejectedValue(new Error('Network error'));
 
+      // Remove environment variables to test credentials path
+      delete process.env.OLLAMA_API_BASE;
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with credentials
+      mockContext.credentials = {
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          apiKey: 'test-key'
+        }
+      };
+
       const result: HealthStatus = await provider.health(mockContext);
       
       expect(result.status).toBe('down');
@@ -98,13 +137,21 @@ describe('OllamaProvider', () => {
       expect(result.message).toBe('Network error');
     });
 
-    it('should return down status when OLLAMA_API_BASE is not configured', async () => {
+    it('should return down status when baseUrl is not configured', async () => {
+      // Remove environment variables to test credentials path
       delete process.env.OLLAMA_API_BASE;
-      
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with empty credentials
+      mockContext.credentials = {
+        ollama: {}
+      };
+
       const result: HealthStatus = await provider.health(mockContext);
       
       expect(result.status).toBe('down');
-      expect(result.message).toBe('OLLAMA_API_BASE not configured');
+      expect(result.message).toBe('credentials not configured for this user');
     });
   });
 
@@ -122,6 +169,19 @@ describe('OllamaProvider', () => {
         status: 200,
         json: async () => mockResponse,
       } as Response);
+
+      // Remove environment variables to test credentials path
+      delete process.env.OLLAMA_API_BASE;
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with credentials
+      mockContext.credentials = {
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          apiKey: 'test-key'
+        }
+      };
 
       const result = await provider.query['list-models']({}, mockContext);
       
@@ -145,13 +205,34 @@ describe('OllamaProvider', () => {
         statusText: 'Unauthorized',
       } as Response);
 
+      // Remove environment variables to test credentials path
+      delete process.env.OLLAMA_API_BASE;
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with credentials
+      mockContext.credentials = {
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          apiKey: 'test-key'
+        }
+      };
+
       await expect(provider.query['list-models']({}, mockContext)).rejects.toThrow('HTTP 401: Unauthorized');
     });
 
-    it('should throw error when OLLAMA_API_BASE is not configured', async () => {
+    it('should throw error when baseUrl is not configured', async () => {
+      // Remove environment variables to test credentials path
       delete process.env.OLLAMA_API_BASE;
-      
-      await expect(provider.query['list-models']({}, mockContext)).rejects.toThrow('OLLAMA_API_BASE not configured');
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with empty credentials
+      mockContext.credentials = {
+        ollama: {}
+      };
+
+      await expect(provider.query['list-models']({}, mockContext)).rejects.toThrow('credentials not configured for this user');
     });
   });
 
@@ -169,6 +250,20 @@ describe('OllamaProvider', () => {
         status: 200,
         json: async () => mockResponse,
       } as Response);
+
+      // Remove environment variables to test credentials path
+      delete process.env.OLLAMA_API_BASE;
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with credentials
+      mockContext.credentials = {
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          apiKey: 'test-key',
+          defaultModel: 'llama3'
+        }
+      };
 
       const params = {
         messages: [
@@ -210,6 +305,20 @@ describe('OllamaProvider', () => {
         json: async () => mockResponse,
       } as Response);
 
+      // Remove environment variables to test credentials path
+      delete process.env.OLLAMA_API_BASE;
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with credentials
+      mockContext.credentials = {
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          apiKey: 'test-key',
+          defaultModel: 'llama3'
+        }
+      };
+
       const params = {
         model: 'mistral',
         messages: [
@@ -243,6 +352,20 @@ describe('OllamaProvider', () => {
         statusText: 'Bad Request',
       } as Response);
 
+      // Remove environment variables to test credentials path
+      delete process.env.OLLAMA_API_BASE;
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with credentials
+      mockContext.credentials = {
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          apiKey: 'test-key',
+          defaultModel: 'llama3'
+        }
+      };
+
       const params = {
         messages: [
           { role: 'user', content: 'Hello' }
@@ -252,16 +375,24 @@ describe('OllamaProvider', () => {
       await expect(provider.mutation.chat(params, mockContext)).rejects.toThrow('HTTP 400: Bad Request');
     });
 
-    it('should throw error when OLLAMA_API_BASE is not configured', async () => {
+    it('should throw error when baseUrl is not configured', async () => {
+      // Remove environment variables to test credentials path
       delete process.env.OLLAMA_API_BASE;
-      
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with empty credentials
+      mockContext.credentials = {
+        ollama: {}
+      };
+
       const params = {
         messages: [
           { role: 'user', content: 'Hello' }
         ]
       };
 
-      await expect(provider.mutation.chat(params, mockContext)).rejects.toThrow('OLLAMA_API_BASE not configured');
+      await expect(provider.mutation.chat(params, mockContext)).rejects.toThrow('credentials not configured for this user');
     });
   });
 
@@ -298,6 +429,20 @@ describe('OllamaProvider', () => {
         status: 200,
         body: mockBody
       } as any);
+
+      // Remove environment variables to test credentials path
+      delete process.env.OLLAMA_API_BASE;
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with credentials
+      mockContext.credentials = {
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          apiKey: 'test-key',
+          defaultModel: 'llama3'
+        }
+      };
 
       const params = {
         messages: [
@@ -357,6 +502,20 @@ describe('OllamaProvider', () => {
         statusText: 'Unauthorized',
       } as Response);
 
+      // Remove environment variables to test credentials path
+      delete process.env.OLLAMA_API_BASE;
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with credentials
+      mockContext.credentials = {
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          apiKey: 'test-key',
+          defaultModel: 'llama3'
+        }
+      };
+
       const params = {
         messages: [
           { role: 'user', content: 'Hello' }
@@ -374,9 +533,17 @@ describe('OllamaProvider', () => {
       await expect(promise).rejects.toThrow('HTTP 401: Unauthorized');
     });
 
-    it('should throw error when OLLAMA_API_BASE is not configured', async () => {
+    it('should throw error when baseUrl is not configured', async () => {
+      // Remove environment variables to test credentials path
       delete process.env.OLLAMA_API_BASE;
-      
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with empty credentials
+      mockContext.credentials = {
+        ollama: {}
+      };
+
       const params = {
         messages: [
           { role: 'user', content: 'Hello' }
@@ -391,7 +558,7 @@ describe('OllamaProvider', () => {
         }
       })();
 
-      await expect(promise).rejects.toThrow('OLLAMA_API_BASE not configured');
+      await expect(promise).rejects.toThrow('credentials not configured for this user');
     });
   });
 });

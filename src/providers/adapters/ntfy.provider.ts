@@ -27,7 +27,20 @@ export class NtfyProvider implements ServiceProvider {
   
   async health(ctx: UserContext): Promise<HealthStatus> {
     try {
-      const url = getEnvVar('NYRVANA_NTFY_URL', 'http://localhost:80');
+      // Check for credentials in ctx first
+      const creds = (ctx.credentials[this.id] as any);
+      let url: string;
+      
+      if (creds && creds.url) {
+        url = creds.url;
+      } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
+        url = getEnvVar('NYRVANA_NTFY_URL', 'http://localhost:80');
+      } else {
+        return { 
+          status: 'down', 
+          message: 'credentials not configured for this user' 
+        };
+      }
       
       const response = await this.circuitBreaker.execute(() => 
         ctx.fetch(`${url}/v1/health`, {
@@ -57,7 +70,17 @@ export class NtfyProvider implements ServiceProvider {
   query = {
     getNotifications: async (params: unknown, ctx: UserContext) => {
       try {
-        const url = getEnvVar('NYRVANA_NTFY_URL', 'http://localhost:80');
+        // Check for credentials in ctx first
+        const creds = (ctx.credentials[this.id] as any);
+        let url: string;
+        
+        if (creds && creds.url) {
+          url = creds.url;
+        } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
+          url = getEnvVar('NYRVANA_NTFY_URL', 'http://localhost:80');
+        } else {
+          throw new Error('credentials not configured for this user');
+        }
         
         // Type guard for params
         const topic = params && typeof params === 'object' && 'topic' in params && typeof params.topic === 'string' 
@@ -88,7 +111,17 @@ export class NtfyProvider implements ServiceProvider {
     
     getTopics: async (_params: unknown, ctx: UserContext) => {
       try {
-        const url = getEnvVar('NYRVANA_NTFY_URL', 'http://localhost:80');
+        // Check for credentials in ctx first
+        const creds = (ctx.credentials[this.id] as any);
+        let url: string;
+        
+        if (creds && creds.url) {
+          url = creds.url;
+        } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
+          url = getEnvVar('NYRVANA_NTFY_URL', 'http://localhost:80');
+        } else {
+          throw new Error('credentials not configured for this user');
+        }
         
         const response = await this.circuitBreaker.execute(() => 
           ctx.fetch(`${url}/v1/topics`, {
@@ -120,8 +153,17 @@ export class NtfyProvider implements ServiceProvider {
           throw new Error('Invalid parameters: topic and message are required and must be strings');
         }
         
-        const url = getEnvVar('NYRVANA_NTFY_URL', 'http://localhost:80');
-        const topic = params.topic;
+        // Check for credentials in ctx first
+        const creds = (ctx.credentials[this.id] as any);
+        let url: string;
+        
+        if (creds && creds.url) {
+          url = creds.url;
+        } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
+          url = getEnvVar('NYRVANA_NTFY_URL', 'http://localhost:80');
+        } else {
+          throw new Error('credentials not configured for this user');
+        }
         
         const headers: Record<string, string> = {
           'Content-Type': 'application/json'
@@ -137,7 +179,7 @@ export class NtfyProvider implements ServiceProvider {
         
         const body = typeof params.message === 'string' ? params.message : String(params.message);
         const response = await this.circuitBreaker.execute(() => 
-          ctx.fetch(`${url}/${topic}`, {
+          ctx.fetch(`${url}/${params.topic}`, {
             method: 'POST',
             headers,
             body
@@ -150,8 +192,8 @@ export class NtfyProvider implements ServiceProvider {
         
         await ctx.audit({
           action: 'ntfy.notification.send',
-          resource: `ntfy:notification:${topic}`,
-          metadata: { topic, message: params.message }
+          resource: `ntfy:notification:${params.topic}`,
+          metadata: { topic: params.topic, message: params.message }
         });
         
         return { success: true, messageId: await response.text() };
