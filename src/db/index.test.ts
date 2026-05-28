@@ -45,7 +45,7 @@ describe("database", () => {
     }).toThrow();
 
     // Clean up
-    db.close();
+    // db.close removed - shared singleton, Bun cleans up on exit
     process.env.NYRVANA_DB_PATH = originalEnv;
   });
 
@@ -85,7 +85,7 @@ describe("database", () => {
     expect(credColumns[4].name).toBe("auth_tag");
     expect(credColumns[5].name).toBe("updated_at");
 
-    db.close();
+    // db.close removed - shared singleton, Bun cleans up on exit
     process.env.NYRVANA_DB_PATH = originalEnv;
   });
 });
