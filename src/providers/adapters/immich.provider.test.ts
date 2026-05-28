@@ -1,7 +1,7 @@
 // src/providers/adapters/immich.provider.test.ts
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ImmichProvider } from './immich.provider';
-import { createMockContext } from './test-helpers';
+import { createMockUserContext } from './test-helpers';
 
 describe('ImmichProvider', () => {
   let provider: ImmichProvider;
@@ -9,7 +9,7 @@ describe('ImmichProvider', () => {
 
   beforeEach(() => {
     provider = new ImmichProvider();
-    mockContext = createMockContext();
+    mockContext = createMockUserContext();
   });
 
   it('should have correct metadata', () => {
