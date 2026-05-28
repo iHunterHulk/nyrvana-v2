@@ -1,16 +1,4 @@
-export interface UserContext {
-  userId: string;
-  wrappedDEK: string;
-  oidcToken: string;
-  fetch: typeof globalThis.fetch;
-  logger: {
-    debug: (message: string, meta?: Record<string, any>) => void;
-    info: (message: string, meta?: Record<string, any>) => void;
-    warn: (message: string, meta?: Record<string, any>) => void;
-    error: (message: string, meta?: Record<string, any>) => void;
-  };
-  audit: (event: { action: string; resource: string; metadata?: Record<string, any> }) => Promise<void>;
-}
+import { UserContext, Logger } from "../providers/types";
 
 export function createUserContext({ headers }: { headers: Record<string, string | undefined> }): UserContext {
   const userId = headers['x-nyrvana-user-id'];
@@ -19,7 +7,7 @@ export function createUserContext({ headers }: { headers: Record<string, string 
     throw new Error('userId missing');
   }
 
-  const logger = {
+  const logger: Logger = {
     debug: (message: string, meta?: Record<string, any>) => {
       console.log(JSON.stringify({ level: 'debug', message, userId, ts: new Date().toISOString(), ...meta }));
     },

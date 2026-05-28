@@ -27,6 +27,9 @@ jobs:
     - name: Run tests
       run: bun run test:run
       
+    - name: Run DB tests
+      run: bun run db:test
+      
       
     - name: Enforce no em-dashes
       run: |

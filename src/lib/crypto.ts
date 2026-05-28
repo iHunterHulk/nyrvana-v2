@@ -1,5 +1,4 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
-import argon2 from "argon2";
 
 export function encrypt(plaintext: string, masterKeyHex: string) {
   const masterKey = Buffer.from(masterKeyHex, "hex");
@@ -21,9 +20,9 @@ export function decrypt(
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  return await argon2.hash(password);
+  return await Bun.password.hash(password, { algorithm: 'argon2id' });
 }
 
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  return await argon2.verify(hash, password);
+  return await Bun.password.verify(password, hash);
 }
