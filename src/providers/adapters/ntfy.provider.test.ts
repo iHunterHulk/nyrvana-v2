@@ -29,7 +29,14 @@ describe('NtfyProvider', () => {
       'GET:http://localhost:80/v1/health': { status: 200, body: { healthy: true } }
     });
     
-    const ctx = createMockUserContext({ fetch: mockFetch });
+    const ctx = createMockUserContext({ 
+      fetch: mockFetch,
+      credentials: {
+        ntfy: {
+          url: 'http://localhost:80'
+        }
+      }
+    });
     
     const result = await provider.health(ctx);
     
@@ -42,7 +49,14 @@ describe('NtfyProvider', () => {
       'GET:http://localhost:80/default/json?poll=1&limit=10': { status: 200, body: mockNotifications }
     });
     
-    const ctx = createMockUserContext({ fetch: mockFetch });
+    const ctx = createMockUserContext({ 
+      fetch: mockFetch,
+      credentials: {
+        ntfy: {
+          url: 'http://localhost:80'
+        }
+      }
+    });
     
     const result = await provider.query.getNotifications({ topic: 'default' }, ctx);
     
@@ -54,7 +68,14 @@ describe('NtfyProvider', () => {
       'POST:http://localhost:80/test-topic': { status: 200, body: 'message-id-123' }
     });
     
-    const ctx = createMockUserContext({ fetch: mockFetch });
+    const ctx = createMockUserContext({ 
+      fetch: mockFetch,
+      credentials: {
+        ntfy: {
+          url: 'http://localhost:80'
+        }
+      }
+    });
     
     const result = await provider.mutation.sendNotification({ 
       topic: 'test-topic', 

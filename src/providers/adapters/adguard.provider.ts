@@ -27,9 +27,25 @@ export class AdGuardProvider implements ServiceProvider {
   
   async health(ctx: UserContext): Promise<HealthStatus> {
     try {
-      const url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:8080');
-      const user = getEnvVar('NYRVANA_ADGUARD_USER');
-      const pass = getEnvVar('NYRVANA_ADGUARD_PASS');
+      // Check for credentials in ctx first
+      const creds = (ctx.credentials[this.id] as any);
+      let url: string, user: string, pass: string;
+      
+      if (creds && typeof creds === 'object' && 'url' in creds && 'user' in creds && 'pass' in creds &&
+          typeof creds.url === 'string' && typeof creds.user === 'string' && typeof creds.pass === 'string') {
+        url = creds.url;
+        user = creds.user;
+        pass = creds.pass;
+      } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
+        url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:8080');
+        user = getEnvVar('NYRVANA_ADGUARD_USER');
+        pass = getEnvVar('NYRVANA_ADGUARD_PASS');
+      } else {
+        return { 
+          status: 'down', 
+          message: 'credentials not configured for this user' 
+        };
+      }
       
       if (!user || !pass) {
         return { 
@@ -68,9 +84,22 @@ export class AdGuardProvider implements ServiceProvider {
   query = {
     getStats: async (_params: unknown, ctx: UserContext) => {
       try {
-        const url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:8080');
-        const user = getEnvVar('NYRVANA_ADGUARD_USER');
-        const pass = getEnvVar('NYRVANA_ADGUARD_PASS');
+        // Check for credentials in ctx first
+        const creds = (ctx.credentials[this.id] as any);
+        let url: string, user: string, pass: string;
+        
+        if (creds && typeof creds === 'object' && 'url' in creds && 'user' in creds && 'pass' in creds &&
+            typeof creds.url === 'string' && typeof creds.user === 'string' && typeof creds.pass === 'string') {
+          url = creds.url;
+          user = creds.user;
+          pass = creds.pass;
+        } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
+          url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:8080');
+          user = getEnvVar('NYRVANA_ADGUARD_USER');
+          pass = getEnvVar('NYRVANA_ADGUARD_PASS');
+        } else {
+          throw new Error('credentials not configured for this user');
+        }
         
         if (!user || !pass) {
           throw new Error('AdGuard user or password not configured');
@@ -100,9 +129,22 @@ export class AdGuardProvider implements ServiceProvider {
     
     getBlockStats: async (_params: unknown, ctx: UserContext) => {
       try {
-        const url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:8080');
-        const user = getEnvVar('NYRVANA_ADGUARD_USER');
-        const pass = getEnvVar('NYRVANA_ADGUARD_PASS');
+        // Check for credentials in ctx first
+        const creds = (ctx.credentials[this.id] as any);
+        let url: string, user: string, pass: string;
+        
+        if (creds && typeof creds === 'object' && 'url' in creds && 'user' in creds && 'pass' in creds &&
+            typeof creds.url === 'string' && typeof creds.user === 'string' && typeof creds.pass === 'string') {
+          url = creds.url;
+          user = creds.user;
+          pass = creds.pass;
+        } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
+          url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:8080');
+          user = getEnvVar('NYRVANA_ADGUARD_USER');
+          pass = getEnvVar('NYRVANA_ADGUARD_PASS');
+        } else {
+          throw new Error('credentials not configured for this user');
+        }
         
         if (!user || !pass) {
           throw new Error('AdGuard user or password not configured');
@@ -139,8 +181,20 @@ export class AdGuardProvider implements ServiceProvider {
           throw new Error('Invalid parameters: url is required and must be a string');
         }
         
-        const url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:3000');
-        const apiKey = getEnvVar('NYRVANA_ADGUARD_API_KEY');
+        // Check for credentials in ctx first
+        const creds = (ctx.credentials[this.id] as any);
+        let url: string, apiKey: string;
+        
+        if (creds && typeof creds === 'object' && 'url' in creds && 'apiKey' in creds &&
+            typeof creds.url === 'string' && typeof creds.apiKey === 'string') {
+          url = creds.url;
+          apiKey = creds.apiKey;
+        } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
+          url = getEnvVar('NYRVANA_ADGUARD_URL', 'http://localhost:3000');
+          apiKey = getEnvVar('NYRVANA_ADGUARD_API_KEY');
+        } else {
+          throw new Error('credentials not configured for this user');
+        }
         
         const response = await this.circuitBreaker.execute(() => 
           ctx.fetch(`${url}/control/access/set_url`, {

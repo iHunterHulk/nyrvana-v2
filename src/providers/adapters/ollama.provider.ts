@@ -49,15 +49,30 @@ export class OllamaProvider implements ServiceProvider {
   async health(ctx: UserContext): Promise<HealthStatus> {
     const startTime = Date.now();
     try {
-      const apiBase = process.env['OLLAMA_API_BASE'];
+      // Check for credentials in ctx first
+      const creds = (ctx.credentials[this.id] as any);
+      let apiBase: string;
+      let apiKey: string;
+      
+      if (creds && typeof creds === 'object' && 'baseUrl' in creds && typeof creds.baseUrl === 'string') {
+        apiBase = creds.baseUrl;
+        apiKey = creds.apiKey || '';
+      } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
+        apiBase = process.env['OLLAMA_API_BASE'] || '';
+        apiKey = process.env['OLLAMA_API_KEY'] || '';
+      } else {
+        return { 
+          status: 'down', 
+          message: 'credentials not configured for this user' 
+        };
+      }
+      
       if (!apiBase) {
         return { 
           status: 'down', 
           message: 'OLLAMA_API_BASE not configured' 
         };
       }
-
-      const apiKey = process.env['OLLAMA_API_KEY'];
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
@@ -95,12 +110,24 @@ export class OllamaProvider implements ServiceProvider {
   query = {
     'list-models': async (_params: unknown, ctx: UserContext): Promise<string[]> => {
       try {
-        const apiBase = process.env['OLLAMA_API_BASE'];
+        // Check for credentials in ctx first
+        const creds = (ctx.credentials[this.id] as any);
+        let apiBase: string;
+        let apiKey: string;
+        
+        if (creds && typeof creds === 'object' && 'baseUrl' in creds && typeof creds.baseUrl === 'string') {
+          apiBase = creds.baseUrl;
+          apiKey = creds.apiKey || '';
+        } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
+          apiBase = process.env['OLLAMA_API_BASE'] || '';
+          apiKey = process.env['OLLAMA_API_KEY'] || '';
+        } else {
+          throw new Error('credentials not configured for this user');
+        }
+        
         if (!apiBase) {
           throw new Error('OLLAMA_API_BASE not configured');
         }
-
-        const apiKey = process.env['OLLAMA_API_KEY'];
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
         };
@@ -131,14 +158,30 @@ export class OllamaProvider implements ServiceProvider {
     chat: async (params: unknown, ctx: UserContext): Promise<{ content: string }> => {
       try {
         const typedParams = params as { model?: string; messages: Array<{ role: string; content: string }> };
-        const apiBase = process.env['OLLAMA_API_BASE'];
+        
+        // Check for credentials in ctx first
+        const creds = (ctx.credentials[this.id] as any);
+        let apiBase: string;
+        let apiKey: string;
+        let defaultModel: string;
+        
+        if (creds && typeof creds === 'object' && 'baseUrl' in creds && typeof creds.baseUrl === 'string') {
+          apiBase = creds.baseUrl;
+          apiKey = creds.apiKey || '';
+          defaultModel = creds.defaultModel || 'llama3';
+        } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
+          apiBase = process.env['OLLAMA_API_BASE'] || '';
+          apiKey = process.env['OLLAMA_API_KEY'] || '';
+          defaultModel = process.env['NYRVANA_LLM_MODEL'] || 'llama3';
+        } else {
+          throw new Error('credentials not configured for this user');
+        }
+        
         if (!apiBase) {
           throw new Error('OLLAMA_API_BASE not configured');
         }
-
-        const apiKey = process.env['OLLAMA_API_KEY'];
-        const defaultModel = process.env['NYRVANA_LLM_MODEL'];
-        const model = typedParams.model || defaultModel || 'llama3';
+        
+        const model = typedParams.model || defaultModel;
         
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
@@ -173,21 +216,37 @@ export class OllamaProvider implements ServiceProvider {
     }
   };
 
-  subscribe = async function* (op: string, params: unknown, ctx: UserContext): AsyncIterable<{ content: string }> {
+  subscribe = async function* (this: any, op: string, params: unknown, ctx: UserContext): AsyncIterable<{ content: string }> {
     if (op !== 'chat') {
       throw new Error(`Unsupported operation: ${op}`);
     }
 
     try {
       const typedParams = params as { model?: string; messages: Array<{ role: string; content: string }> };
-      const apiBase = process.env['OLLAMA_API_BASE'];
+      
+      // Check for credentials in ctx first
+      const creds = (ctx.credentials[this.id] as any);
+      let apiBase: string;
+      let apiKey: string;
+      let defaultModel: string;
+      
+      if (creds && typeof creds === 'object' && 'baseUrl' in creds && typeof creds.baseUrl === 'string') {
+        apiBase = creds.baseUrl;
+        apiKey = creds.apiKey || '';
+        defaultModel = creds.defaultModel || 'llama3';
+      } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
+        apiBase = process.env['OLLAMA_API_BASE'] || '';
+        apiKey = process.env['OLLAMA_API_KEY'] || '';
+        defaultModel = process.env['NYRVANA_LLM_MODEL'] || 'llama3';
+      } else {
+        throw new Error('credentials not configured for this user');
+      }
+      
       if (!apiBase) {
         throw new Error('OLLAMA_API_BASE not configured');
       }
-
-      const apiKey = process.env['OLLAMA_API_KEY'];
-      const defaultModel = process.env['NYRVANA_LLM_MODEL'];
-      const model = typedParams.model || defaultModel || 'llama3';
+      
+      const model = typedParams.model || defaultModel;
       
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
