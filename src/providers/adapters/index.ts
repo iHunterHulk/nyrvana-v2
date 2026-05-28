@@ -3,9 +3,10 @@ import { AdGuardProvider } from './adguard.provider';
 import { NtfyProvider } from './ntfy.provider';
 import { MemosProvider } from './memos.provider';
 import { OllamaProvider } from './ollama.provider';
+import { ImmichProvider } from './immich.provider';
 import { providerRegistry as registry } from '../registry-singleton';
 
-export { AdGuardProvider, NtfyProvider, MemosProvider, OllamaProvider };
+export { AdGuardProvider, NtfyProvider, MemosProvider, OllamaProvider, ImmichProvider };
 
 // Auto-register providers on import
 // Only register if not already registered (for testing purposes)
@@ -23,4 +24,8 @@ if (!registry.get('memos')) {
 
 if (!registry.get('ollama')) {
   registry.register(new OllamaProvider());
+}
+
+if (!registry.get('immich')) {
+  registry.register(new ImmichProvider());
 }
