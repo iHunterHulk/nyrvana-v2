@@ -560,5 +560,68 @@ describe('OllamaProvider', () => {
 
       await expect(promise).rejects.toThrow('credentials not configured for this user');
     });
+
+    it('should handle partial JSON chunks in stream', async () => {
+      // Create a mock ReadableStream with test data split across chunks
+      const encoder = new TextEncoder();
+      const mockStreamChunks = [
+        '{"model":"llama3","created_at":"2023-01-01T00:00:00Z","message":{"role":"assistant","content":"Hel',
+        'lo world!"},"done":true}\n'
+      ];
+      
+      let chunkIndex = 0;
+      const mockReader = {
+        read: vi.fn().mockImplementation(() => {
+          if (chunkIndex < mockStreamChunks.length) {
+            return Promise.resolve({
+              done: false,
+              value: encoder.encode(mockStreamChunks[chunkIndex++])
+            });
+          } else {
+            return Promise.resolve({ done: true, value: undefined });
+          }
+        }),
+        releaseLock: vi.fn()
+      };
+      
+      const mockBody = {
+        getReader: () => mockReader
+      };
+      
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        body: mockBody
+      } as any);
+
+      // Remove environment variables to test credentials path
+      delete process.env.OLLAMA_API_BASE;
+      delete process.env.OLLAMA_API_KEY;
+      delete process.env.NYRVANA_LLM_MODEL;
+
+      // Set up mock context with credentials
+      mockContext.credentials = {
+        ollama: {
+          baseUrl: 'http://localhost:11434',
+          apiKey: 'test-key',
+          defaultModel: 'llama3'
+        }
+      };
+
+      const params = {
+        messages: [
+          { role: 'user', content: 'Hello' }
+        ]
+      };
+
+      const results = [];
+      for await (const chunk of provider.subscribe('chat', params, mockContext)) {
+        results.push(chunk);
+      }
+      
+      expect(results).toEqual([
+        { content: 'Hello world!' }
+      ]);
+    });
   });
 });
