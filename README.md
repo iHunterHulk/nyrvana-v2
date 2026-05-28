@@ -87,6 +87,23 @@ bun test
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
+## Production
+
+For production deployment, you can use PM2 process manager with the provided ecosystem configuration:
+
+```bash
+# Start the application
+pm2 start ecosystem.config.cjs
+
+# View application logs
+pm2 logs nyrvana-v2
+
+# Restart the application
+pm2 restart nyrvana-v2
+```
+
+Note: PM2 must be installed globally first (`npm install -g pm2`).
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
