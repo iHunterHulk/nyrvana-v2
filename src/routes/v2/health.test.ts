@@ -1,3 +1,4 @@
+process.env.NYRVANA_JWT_SECRET = process.env.NYRVANA_JWT_SECRET || 'test-jwt-secret';
 import { beforeAll, afterAll, describe, it, expect, beforeEach, vi } from 'vitest';
 import { Elysia } from 'elysia';
 import { health } from './health';
