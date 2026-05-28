@@ -13,8 +13,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "bun run --watch src/server.ts",
-    "start": "bun run src/server.ts",
+    "dev": "echo 'src/server.ts will arrive in PR 4' && exit 0",
+    "start": "echo 'src/server.ts will arrive in PR 4' && exit 0",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
