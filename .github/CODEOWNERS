@@ -1,0 +1,17 @@
+# Default reviewer for all changes
+* @iHunterHulk
+
+# API routes
+src/routes/** @iHunterHulk
+
+# Providers
+src/providers/** @iHunterHulk
+
+# Middleware
+src/middleware/** @iHunterHulk
+
+# Library code
+src/lib/** @iHunterHulk
+
+# Tests
+**/*.test.ts @iHunterHulk
