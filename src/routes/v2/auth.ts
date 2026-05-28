@@ -2,42 +2,10 @@ import { Elysia, t } from 'elysia';
 import { db } from '../../db';
 import { hashPassword, verifyPassword } from '../../lib/crypto';
 import { signAccessToken, signRefreshToken } from '../../lib/jwt';
+import { requireJWT } from '../../middleware/requireJWT';
 
-export const auth = new Elysia({ prefix: '/api/v2/auth' })
-  .post('/register', async ({ body, set, request }) => {
-    // Check if user is admin
-    const userRole = request.headers.get('x-nyrvana-role');
-    if (userRole !== 'admin') {
-      set.status = 403;
-      return { error: 'Admin access required' };
-    }
-
-    const { email, password, role = 'user' } = body as { email: string; password: string; role?: 'user' | 'admin' };
-
-    try {
-      const passwordHash = await hashPassword(password);
-      const userId = crypto.randomUUID();
-      
-      db.prepare(
-        'INSERT INTO users (id, email, password_hash, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
-      ).run(userId, email, passwordHash, role, Date.now(), Date.now());
-
-      return { message: 'User registered successfully' };
-    } catch (error: any) {
-      if (error.message.includes('UNIQUE constraint failed')) {
-        set.status = 409;
-        return { error: 'Email already exists' };
-      }
-      set.status = 500;
-      return { error: 'Internal server error' };
-    }
-  }, {
-    body: t.Object({
-      email: t.String(),
-      password: t.String(),
-      role: t.Optional(t.Union([t.Literal('user'), t.Literal('admin')]))
-    })
-  })
+// Open routes plugin (no authentication required)
+export const authOpen = new Elysia({ prefix: '/api/v2/auth' })
   .post('/login', async ({ body, set }) => {
     const { email, password } = body as { email: string; password: string };
 
@@ -104,6 +72,46 @@ export const auth = new Elysia({ prefix: '/api/v2/auth' })
   }, {
     body: t.Object({
       refreshToken: t.String()
+    })
+  });
+
+// Protected routes plugin (requires authentication)
+export const authProtected = new Elysia({ prefix: '/api/v2/auth' })
+  .guard({
+    beforeHandle: requireJWT
+  })
+  .post('/register', async ({ body, set, request }) => {
+    // Check if user is admin
+    const userRole = request.headers.get('x-nyrvana-role');
+    if (userRole !== 'admin') {
+      set.status = 403;
+      return { error: 'Admin access required' };
+    }
+
+    const { email, password, role = 'user' } = body as { email: string; password: string; role?: 'user' | 'admin' };
+
+    try {
+      const passwordHash = await hashPassword(password);
+      const userId = crypto.randomUUID();
+      
+      db.prepare(
+        'INSERT INTO users (id, email, password_hash, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
+      ).run(userId, email, passwordHash, role, Date.now(), Date.now());
+
+      return { message: 'User registered successfully' };
+    } catch (error: any) {
+      if (error.message.includes('UNIQUE constraint failed')) {
+        set.status = 409;
+        return { error: 'Email already exists' };
+      }
+      set.status = 500;
+      return { error: 'Internal server error' };
+    }
+  }, {
+    body: t.Object({
+      email: t.String(),
+      password: t.String(),
+      role: t.Optional(t.Union([t.Literal('user'), t.Literal('admin')]))
     })
   })
   .post('/logout', ({ body, set, request }) => {

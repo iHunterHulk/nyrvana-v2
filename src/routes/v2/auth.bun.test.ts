@@ -68,6 +68,53 @@ describe('Auth API', () => {
     expect(data.error).toBe('Admin access required');
   });
 
+  it('POST /register without Authorization returns 401', async () => {
+    const response = await fetch('http://localhost:3000/api/v2/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: 'unauthorized@example.com',
+        password: 'testpass',
+        role: 'user'
+      })
+    });
+
+    expect(response.status).toBe(401);
+    const data = await response.json();
+    expect(data.error).toBe('Missing or invalid Authorization header');
+  });
+
+  it('POST /register with non-admin JWT returns 403', async () => {
+    // Create a regular user
+    const userPasswordHash = await hashPassword('userpass');
+    const userId = crypto.randomUUID();
+    db.prepare(
+      'INSERT INTO users (id, email, password_hash, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
+    ).run(userId, 'nonadmin@example.com', userPasswordHash, 'user', Date.now(), Date.now());
+
+    // Create auth header for regular user
+    const userToken = signAccessToken(userId, 'user');
+
+    const response = await fetch('http://localhost:3000/api/v2/auth/register', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${userToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: 'nonadminregister@example.com',
+        password: 'testpass',
+        role: 'user'
+      })
+    });
+
+    expect(response.status).toBe(403);
+    const data = await response.json();
+    expect(data.error).toBe('Admin access required');
+  });
+
   it('should login and return tokens', async () => {
     // Create a user
     const passwordHash = await hashPassword('testpass');

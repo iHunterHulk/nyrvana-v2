@@ -5,7 +5,7 @@ import { providers } from './routes/v2/providers';
 import { chat } from './routes/v2/chat';
 import { search } from './routes/v2/search';
 import { models } from './routes/v2/models';
-import { auth } from './routes/v2/auth';
+import { authOpen, authProtected } from './routes/v2/auth';
 import { credentials } from './routes/v2/credentials';
 
 const app = new Elysia()
@@ -14,7 +14,8 @@ const app = new Elysia()
   .use(chat)
   .use(search)
   .use(models)
-  .use(auth)
+  .use(authOpen)
+  .use(authProtected)
   .use(credentials)
   .listen(3002);
 
