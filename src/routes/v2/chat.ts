@@ -2,6 +2,7 @@ import { Elysia, t } from 'elysia';
 import { requireUser } from '../../middleware/requireUser';
 import { providerRegistry } from '../../providers/registry-singleton';
 import type { ServiceProvider, UserContext } from '../../providers/types';
+import { createUserContext } from '../../lib/user-context';
 
 const chat = new Elysia({ prefix: '/api/v2/chat' })
   .post(
@@ -27,21 +28,8 @@ const chat = new Elysia({ prefix: '/api/v2/chat' })
       set.headers['Cache-Control'] = 'no-cache';
       set.headers['Connection'] = 'keep-alive';
 
-      // Create a mock context for testing purposes
-      // In a real implementation, this would come from the authenticated user context
-      const mockContext: UserContext = {
-        userId: headers['x-nyrvana-user-id'] || 'test-user',
-        wrappedDEK: '',
-        oidcToken: '',
-        fetch: fetch,
-        logger: {
-          info: console.info,
-          warn: console.warn,
-          error: console.error,
-          debug: console.debug
-        },
-        audit: async () => {}
-      };
+      // Create user context using the factory
+      const context = createUserContext({ headers });
 
       return new Response(
         new ReadableStream({
@@ -56,7 +44,7 @@ const chat = new Elysia({ prefix: '/api/v2/chat' })
               const stream = subscribeFn('chat', {
                 model: body.model || process.env['NYRVANA_LLM_MODEL'],
                 messages: body.messages
-              }, mockContext);
+              }, context);
 
               const encoder = new TextEncoder();
               for await (const delta of stream) {
