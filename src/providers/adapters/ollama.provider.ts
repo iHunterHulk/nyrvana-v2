@@ -1,5 +1,6 @@
 // src/providers/adapters/ollama.provider.ts
 import { ServiceProvider, UserContext, HealthStatus, ProviderCategory } from '../types';
+import { getEnvVar } from "../../lib/env";
 
 interface OllamaModel {
   name: string;
@@ -119,8 +120,8 @@ export class OllamaProvider implements ServiceProvider {
           apiBase = creds.baseUrl;
           apiKey = creds.apiKey || '';
         } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
-          apiBase = process.env['OLLAMA_API_BASE'] || '';
-          apiKey = process.env['OLLAMA_API_KEY'] || '';
+          apiBase = getEnvVar('OLLAMA_API_BASE', 'https://ollama.com/v1');
+          apiKey = getEnvVar('OLLAMA_API_KEY');
         } else {
           throw new Error('credentials not configured for this user');
         }
@@ -170,9 +171,9 @@ export class OllamaProvider implements ServiceProvider {
           apiKey = creds.apiKey || '';
           defaultModel = creds.defaultModel || 'llama3';
         } else if (process.env['NYRVANA_FALLBACK_TO_ENV'] === '1') {
-          apiBase = process.env['OLLAMA_API_BASE'] || '';
-          apiKey = process.env['OLLAMA_API_KEY'] || '';
-          defaultModel = process.env['NYRVANA_LLM_MODEL'] || 'llama3';
+          apiBase = getEnvVar('OLLAMA_API_BASE', 'https://ollama.com/v1');
+          apiKey = getEnvVar('OLLAMA_API_KEY');
+          defaultModel = getEnvVar('NYRVANA_LLM_MODEL', 'llama3');
         } else {
           throw new Error('credentials not configured for this user');
         }
