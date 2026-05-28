@@ -2,4 +2,4 @@
 import { ProviderRegistry } from './registry';
 
 // Global registry instance
-export const registry = new ProviderRegistry();
+export const providerRegistry = new ProviderRegistry();

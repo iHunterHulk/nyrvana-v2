@@ -1,0 +1,12 @@
+import { Elysia } from 'elysia';
+import { health } from './routes/v2/health';
+import { providers } from './routes/v2/providers';
+
+const app = new Elysia()
+  .use(health)
+  .use(providers)
+  .listen(3002);
+
+console.log(`Nyrvana V2 server running on port 3002`);
+
+export type App = typeof app;
