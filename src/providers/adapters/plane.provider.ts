@@ -80,7 +80,7 @@ export class PlaneProvider implements ServiceProvider {
   }
   
   query = {
-    listIssues: async (params: unknown, ctx: UserContext) => {
+    listIssues: async (_params: unknown, ctx: UserContext) => {
       try {
         // Check for credentials in ctx first
         const creds = (ctx.credentials[this.id] as any);
@@ -123,7 +123,7 @@ export class PlaneProvider implements ServiceProvider {
       }
     },
     
-    getIssue: async (params: unknown, ctx: UserContext) => {
+    getIssue: async (_params: unknown, ctx: UserContext) => {
       try {
         // Type guard for params
         if (!params || typeof params !== 'object' || !('id' in params) || typeof params.id !== 'string') {
@@ -173,7 +173,7 @@ export class PlaneProvider implements ServiceProvider {
   };
   
   mutation = {
-    createIssue: async (params: unknown, ctx: UserContext) => {
+    createIssue: async (_params: unknown, ctx: UserContext) => {
       try {
         // Type guard for params
         if (!params || typeof params !== 'object') {
