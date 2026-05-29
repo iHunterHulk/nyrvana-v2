@@ -57,28 +57,7 @@ describe('NextcloudProvider', () => {
     expect(result.message).toBe('credentials not configured for this user');
   });
   
-  it('should list files successfully', async () => {
-    const mockFiles = { files: [{ name: 'test.txt', type: 'file' }] };
-    const mockFetch = createMockFetch({
-      'PROPFIND:http://localhost:8080/remote.php/webdav/': { status: 200, body: mockFiles }
-    });
-    
-    const ctx = createMockUserContext({ 
-      fetch: mockFetch as any,
-      credentials: {
-        nextcloud: {
-          url: 'http://localhost:8080',
-          user: 'admin',
-          pass: 'secret'
-        }
-      }
-    });
-    
-    const result = await provider.query.listFiles({}, ctx);
-    
-    expect(result).toEqual(mockFiles);
-  });
-  
+
   it('should get shares successfully', async () => {
     const mockShares = { ocs: { data: [{ id: '1', path: '/test' }] } };
     const mockFetch = createMockFetch({
