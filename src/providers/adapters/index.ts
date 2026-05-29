@@ -6,9 +6,10 @@ import { OllamaProvider } from './ollama.provider';
 import { ImmichProvider } from './immich.provider';
 import { MinifluxProvider } from './miniflux.provider';
 import { PaperlessProvider } from './paperless.provider';
+import { StirlingProvider } from './stirling.provider';
 import { providerRegistry as registry } from '../registry-singleton';
 
-export { AdGuardProvider, NtfyProvider, MemosProvider, OllamaProvider, ImmichProvider, MinifluxProvider, PaperlessProvider };
+export { AdGuardProvider, NtfyProvider, MemosProvider, OllamaProvider, ImmichProvider, MinifluxProvider, PaperlessProvider, StirlingProvider };
 
 // Auto-register providers on import
 // Only register if not already registered (for testing purposes)
@@ -38,4 +39,8 @@ if (!registry.get('miniflux')) {
 
 if (!registry.get('paperless')) {
   registry.register(new PaperlessProvider());
+}
+
+if (!registry.get('stirling')) {
+  registry.register(new StirlingProvider());
 }
