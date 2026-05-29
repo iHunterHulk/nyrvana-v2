@@ -13,7 +13,7 @@ export class HomepageProvider implements ServiceProvider {
     'read.other.services'
   ];
   
-  authMethod: 'none' = 'none';
+  authMethod: 'api-key' = 'api-key';
   
   private circuitBreaker = new CircuitBreaker({
     failureThreshold: 3,

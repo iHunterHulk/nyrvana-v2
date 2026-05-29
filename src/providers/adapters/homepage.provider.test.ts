@@ -15,7 +15,7 @@ describe('HomepageProvider', () => {
     expect(provider.name).toBe('Homepage');
     expect(provider.category).toBe('other');
     expect(provider.icon).toBe('layout-grid');
-    expect(provider.authMethod).toBe('none');
+    expect(provider.authMethod).toBe('api-key');
   });
   
   it('should have correct capabilities', () => {
