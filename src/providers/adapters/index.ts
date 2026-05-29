@@ -1,40 +1,29 @@
 // src/providers/adapters/index.ts
 import { AdGuardProvider } from './adguard.provider';
-import { NtfyProvider } from './ntfy.provider';
-import { MemosProvider } from './memos.provider';
-import { OllamaProvider } from './ollama.provider';
 import { ImmichProvider } from './immich.provider';
+import { MemosProvider } from './memos.provider';
 import { MinifluxProvider } from './miniflux.provider';
 import { N8nProvider } from './n8n.provider';
-import { providerRegistry as registry } from '../registry-singleton';
-
-export { AdGuardProvider, NtfyProvider, MemosProvider, OllamaProvider, ImmichProvider, MinifluxProvider, N8nProvider };
+import { NtfyProvider } from './ntfy.provider';
+import { OllamaProvider } from './ollama.provider';
 import { PaperlessProvider } from './paperless.provider';
+import { SablierProvider } from './sablier.provider';
 import { StirlingProvider } from './stirling.provider';
 import { providerRegistry as registry } from '../registry-singleton';
 
-export { AdGuardProvider, NtfyProvider, MemosProvider, OllamaProvider, ImmichProvider, MinifluxProvider, PaperlessProvider, StirlingProvider };
+export { AdGuardProvider, ImmichProvider, MemosProvider, MinifluxProvider, N8nProvider, NtfyProvider, OllamaProvider, PaperlessProvider, SablierProvider, StirlingProvider };
 
 // Auto-register providers on import
-// Only register if not already registered (for testing purposes)
 if (!registry.get('adguard')) {
   registry.register(new AdGuardProvider());
 }
 
-if (!registry.get('ntfy')) {
-  registry.register(new NtfyProvider());
+if (!registry.get('immich')) {
+  registry.register(new ImmichProvider());
 }
 
 if (!registry.get('memos')) {
   registry.register(new MemosProvider());
-}
-
-if (!registry.get('ollama')) {
-  registry.register(new OllamaProvider());
-}
-
-if (!registry.get('immich')) {
-  registry.register(new ImmichProvider());
 }
 
 if (!registry.get('miniflux')) {
@@ -43,8 +32,22 @@ if (!registry.get('miniflux')) {
 
 if (!registry.get('n8n')) {
   registry.register(new N8nProvider());
+}
+
+if (!registry.get('ntfy')) {
+  registry.register(new NtfyProvider());
+}
+
+if (!registry.get('ollama')) {
+  registry.register(new OllamaProvider());
+}
+
 if (!registry.get('paperless')) {
   registry.register(new PaperlessProvider());
+}
+
+if (!registry.get('sablier')) {
+  registry.register(new SablierProvider());
 }
 
 if (!registry.get('stirling')) {
