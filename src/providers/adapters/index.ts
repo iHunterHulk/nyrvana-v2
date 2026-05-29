@@ -5,9 +5,10 @@ import { MemosProvider } from './memos.provider';
 import { OllamaProvider } from './ollama.provider';
 import { ImmichProvider } from './immich.provider';
 import { MinifluxProvider } from './miniflux.provider';
+import { N8nProvider } from './n8n.provider';
 import { providerRegistry as registry } from '../registry-singleton';
 
-export { AdGuardProvider, NtfyProvider, MemosProvider, OllamaProvider, ImmichProvider, MinifluxProvider };
+export { AdGuardProvider, NtfyProvider, MemosProvider, OllamaProvider, ImmichProvider, MinifluxProvider, N8nProvider };
 
 // Auto-register providers on import
 // Only register if not already registered (for testing purposes)
@@ -33,4 +34,8 @@ if (!registry.get('immich')) {
 
 if (!registry.get('miniflux')) {
   registry.register(new MinifluxProvider());
+}
+
+if (!registry.get('n8n')) {
+  registry.register(new N8nProvider());
 }
