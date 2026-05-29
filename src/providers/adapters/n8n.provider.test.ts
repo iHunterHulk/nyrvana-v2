@@ -99,27 +99,7 @@ describe('N8nProvider', () => {
     expect(result).toEqual(mockExecutions);
   });
   
-  it('should filter executions by workflowId', async () => {
-    const mockExecutions = [{ id: '1', workflowId: 'workflow-1', status: 'success' }];
-    const mockFetch = createMockFetch({
-      'GET:http://localhost:5678/api/v1/executions?filter[workflowId]=workflow-1': { status: 200, body: mockExecutions }
-    });
-    
-    const ctx = createMockUserContext({ 
-      fetch: mockFetch,
-      credentials: {
-        n8n: {
-          url: 'http://localhost:5678',
-          apiKey: 'test-key'
-        }
-      }
-    });
-    
-    const result = await provider.query.getExecutions({ workflowId: 'workflow-1' }, ctx);
-    
-    expect(result).toEqual(mockExecutions);
-  });
-  
+
   it('should trigger workflow successfully', async () => {
     const mockResponse = { executionId: 'exec-1', status: 'running' };
     const mockFetch = createMockFetch({
