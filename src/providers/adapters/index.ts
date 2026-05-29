@@ -9,11 +9,12 @@ import { NextcloudProvider } from './nextcloud.provider';
 import { NtfyProvider } from './ntfy.provider';
 import { OllamaProvider } from './ollama.provider';
 import { PaperlessProvider } from './paperless.provider';
+import { PlaneProvider } from './plane.provider';
 import { SablierProvider } from './sablier.provider';
 import { StirlingProvider } from './stirling.provider';
 import { providerRegistry as registry } from '../registry-singleton';
 
-export { AdGuardProvider, HomepageProvider, ImmichProvider, MemosProvider, MinifluxProvider, N8nProvider, NextcloudProvider, NtfyProvider, OllamaProvider, PaperlessProvider, SablierProvider, StirlingProvider };
+export { AdGuardProvider, HomepageProvider, ImmichProvider, MemosProvider, MinifluxProvider, N8nProvider, NextcloudProvider, NtfyProvider, OllamaProvider, PaperlessProvider, PlaneProvider, SablierProvider, StirlingProvider };
 
 if (!registry.get('adguard')) { registry.register(new AdGuardProvider()); }
 if (!registry.get('homepage')) { registry.register(new HomepageProvider()); }
@@ -25,5 +26,6 @@ if (!registry.get('nextcloud')) { registry.register(new NextcloudProvider()); }
 if (!registry.get('ntfy')) { registry.register(new NtfyProvider()); }
 if (!registry.get('ollama')) { registry.register(new OllamaProvider()); }
 if (!registry.get('paperless')) { registry.register(new PaperlessProvider()); }
+if (!registry.get('plane')) { registry.register(new PlaneProvider()); }
 if (!registry.get('sablier')) { registry.register(new SablierProvider()); }
 if (!registry.get('stirling')) { registry.register(new StirlingProvider()); }
