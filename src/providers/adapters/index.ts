@@ -10,6 +10,10 @@ import { HomepageProvider } from './homepage.provider';
 import { providerRegistry as registry } from '../registry-singleton';
 
 export { AdGuardProvider, NtfyProvider, MemosProvider, OllamaProvider, ImmichProvider, MinifluxProvider, PaperlessProvider, HomepageProvider };
+import { StirlingProvider } from './stirling.provider';
+import { providerRegistry as registry } from '../registry-singleton';
+
+export { AdGuardProvider, NtfyProvider, MemosProvider, OllamaProvider, ImmichProvider, MinifluxProvider, PaperlessProvider, StirlingProvider };
 
 // Auto-register providers on import
 // Only register if not already registered (for testing purposes)
@@ -43,4 +47,6 @@ if (!registry.get('paperless')) {
 
 if (!registry.get('homepage')) {
   registry.register(new HomepageProvider());
+if (!registry.get('stirling')) {
+  registry.register(new StirlingProvider());
 }
