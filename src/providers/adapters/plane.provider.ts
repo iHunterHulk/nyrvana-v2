@@ -173,7 +173,7 @@ export class PlaneProvider implements ServiceProvider {
   };
   
   mutation = {
-    createIssue: async (_params: unknown, ctx: UserContext) => {
+    createIssue: async (params: unknown, ctx: UserContext) => {
       try {
         // Type guard for params
         if (!params || typeof params !== 'object') {
