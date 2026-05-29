@@ -10,6 +10,10 @@ import { SearXNGProvider } from './searxng.provider';
 import { providerRegistry as registry } from '../registry-singleton';
 
 export { AdGuardProvider, NtfyProvider, MemosProvider, OllamaProvider, ImmichProvider, MinifluxProvider, PaperlessProvider, SearXNGProvider };
+import { StirlingProvider } from './stirling.provider';
+import { providerRegistry as registry } from '../registry-singleton';
+
+export { AdGuardProvider, NtfyProvider, MemosProvider, OllamaProvider, ImmichProvider, MinifluxProvider, PaperlessProvider, StirlingProvider };
 
 // Auto-register providers on import
 // Only register if not already registered (for testing purposes)
@@ -43,4 +47,6 @@ if (!registry.get('paperless')) {
 
 if (!registry.get('searxng')) {
   registry.register(new SearXNGProvider());
+if (!registry.get('stirling')) {
+  registry.register(new StirlingProvider());
 }
