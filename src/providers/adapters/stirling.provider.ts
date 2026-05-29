@@ -14,7 +14,7 @@ export class StirlingProvider implements ServiceProvider {
     'read.docs.info'
   ];
   
-  authMethod: 'none' = 'none';
+  authMethod: 'api-key' = 'api-key';
   
   private circuitBreaker = new CircuitBreaker({
     failureThreshold: 3,

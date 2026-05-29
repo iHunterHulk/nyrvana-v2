@@ -15,7 +15,7 @@ describe('StirlingProvider', () => {
     expect(provider.name).toBe('Stirling PDF');
     expect(provider.category).toBe('docs');
     expect(provider.icon).toBe('file');
-    expect(provider.authMethod).toBe('none');
+    expect(provider.authMethod).toBe('api-key');
   });
   
   it('should have correct capabilities', () => {
