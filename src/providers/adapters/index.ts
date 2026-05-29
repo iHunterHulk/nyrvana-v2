@@ -1,5 +1,6 @@
 // src/providers/adapters/index.ts
 import { AdGuardProvider } from './adguard.provider';
+import { HomepageProvider } from './homepage.provider';
 import { ImmichProvider } from './immich.provider';
 import { MemosProvider } from './memos.provider';
 import { MinifluxProvider } from './miniflux.provider';
@@ -12,9 +13,10 @@ import { SablierProvider } from './sablier.provider';
 import { StirlingProvider } from './stirling.provider';
 import { providerRegistry as registry } from '../registry-singleton';
 
-export { AdGuardProvider, ImmichProvider, MemosProvider, MinifluxProvider, N8nProvider, NextcloudProvider, NtfyProvider, OllamaProvider, PaperlessProvider, SablierProvider, StirlingProvider };
+export { AdGuardProvider, HomepageProvider, ImmichProvider, MemosProvider, MinifluxProvider, N8nProvider, NextcloudProvider, NtfyProvider, OllamaProvider, PaperlessProvider, SablierProvider, StirlingProvider };
 
 if (!registry.get('adguard')) { registry.register(new AdGuardProvider()); }
+if (!registry.get('homepage')) { registry.register(new HomepageProvider()); }
 if (!registry.get('immich')) { registry.register(new ImmichProvider()); }
 if (!registry.get('memos')) { registry.register(new MemosProvider()); }
 if (!registry.get('miniflux')) { registry.register(new MinifluxProvider()); }
