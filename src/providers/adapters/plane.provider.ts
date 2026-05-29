@@ -123,7 +123,7 @@ export class PlaneProvider implements ServiceProvider {
       }
     },
     
-    getIssue: async (_params: unknown, ctx: UserContext) => {
+    getIssue: async (params: unknown, ctx: UserContext) => {
       try {
         // Type guard for params
         if (!params || typeof params !== 'object' || !('id' in params) || typeof params.id !== 'string') {
